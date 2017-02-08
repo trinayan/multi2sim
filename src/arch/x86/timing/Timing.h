@@ -124,6 +124,8 @@ public:
 	static const int trace_version_major;
 	static const int trace_version_minor;
 
+	/* Count of current OpenCL ND-Ranges executing on this CPU */
+		volatile int ndranges_running;
 
 
 	//
@@ -142,6 +144,8 @@ public:
 
 	/// Fast forward instructions set up by the user
 	void FastForward();
+	/// Opencl fast forward
+	void FastForwardOpenCL();
 
 	/// Run one iteration of the cpu timing simuation.
 	/// \return This function \c true if the iteration had a useful

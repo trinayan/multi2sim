@@ -234,10 +234,10 @@ const std::string Timing::help_message =
 		"\n";
 
 const char *Timing::error_fast_forward =
-	"The number of instructions specified in the x86 CPU configuration file "
-	"for fast-forward (functional) execution has caused all contexts to end "
-	"before the timing simulation could start. Please decrease the number "
-	"of fast-forward instructions and retry.\n";
+		"The number of instructions specified in the x86 CPU configuration file "
+		"for fast-forward (functional) execution has caused all contexts to end "
+		"before the timing simulation could start. Please decrease the number "
+		"of fast-forward instructions and retry.\n";
 
 bool Timing::help = false;
 
@@ -276,22 +276,28 @@ bool Timing::Run()
 {
 	// Stop if there are no more contexts left
 	Emulator *emulator = Emulator::getInstance();
+	esim::Engine *esim_engine = esim::Engine::getInstance();
+
 	assert(emulator->getNumFinishedContexts() <= emulator->getNumContexts());
 	if (emulator->getNumContexts() == 0)
 		return false;
 
 	// Fast-forward simulation
 	if (Cpu::getNumFastForwardInstructions()
-			&& emulator->getNumInstructions()
-			< Cpu::getNumFastForwardInstructions())
+	&& emulator->getNumInstructions()
+	< Cpu::getNumFastForwardInstructions())
 		FastForward();
 
+	//Optionally fast-forward if opencl is not being executed
+	if (Cpu::opencl_fast_forward && ! Cpu::getNdRangesRunning() && !esim_engine->hasFinished())
+		FastForwardOpenCL();
+
 	// Stop if maximum number of CPU instructions exceeded
-	esim::Engine *esim_engine = esim::Engine::getInstance();
+
 	if (Emulator::getMaxInstructions()
-			&& cpu->getNumCommittedInstructions()
-			>= Emulator::getMaxInstructions()
-			- Cpu::getNumFastForwardInstructions())
+	&& cpu->getNumCommittedInstructions()
+	>= Emulator::getMaxInstructions()
+	- Cpu::getNumFastForwardInstructions())
 		esim_engine->Finish("X86MaxInstructions");
 
 	// Stop if maximum number of cycles exceeded
@@ -324,7 +330,7 @@ void Timing::FastForward()
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 	while (emulator->getNumInstructions()
 			< Cpu::getNumFastForwardInstructions()
-			&& !esim_engine->hasFinished())
+	&& !esim_engine->hasFinished())
 		emulator->Run();
 
 	// Output warning if simulation finished during fast-forward execution
@@ -333,6 +339,97 @@ void Timing::FastForward()
 				Timing::error_fast_forward);
 }
 
+void Timing::FastForwardOpenCL()
+{
+	//Fast forward opencl when host is not running
+
+	Emulator *emulator = Emulator::getInstance();
+	esim::Engine *esim_engine = esim::Engine::getInstance();
+	Context *context; // Maybe incorrect?
+	Cpu *cpu = getCpu();
+	int state;
+
+	int i , j;
+
+	//emulator->context_debug  (see context.cc on how to call
+
+	for( i=0; i < Cpu::getNumCores();i++)
+	{
+
+		Core *core = cpu->getCore(i);
+		Alu  *alu  = core->getAlu();
+		for(j=0; j< Cpu::getNumThreads();j++)
+		{
+			Thread *thread = cpu->getThread(i,j);
+			if(thread)
+			{
+				thread->Recover();
+				alu->ReleaseAll();
+			}
+
+		}
+
+	}
+
+	state = context->getState();
+	if(state == 2)
+	{
+		context->Recover();
+	}
+	else
+	{
+		//Not in spec mode
+	}
+
+	while ( (!Cpu::ndranges_running ) && (!esim_engine->hasFinished())  )
+	{
+
+		emulator->Run();
+		if(!emulator->contexts.size())
+		{
+			esim_engine->finish = true;
+		}
+
+	}
+
+	//Clear the pipelines
+	if(!esim_engine->finish)
+	{
+		for( i=0; i < Cpu::getNumCores();i++)
+		{
+
+			Core *core = cpu->getCore(i);
+			Alu  *alu  = core->getAlu();
+			for(j=0; j< Cpu::getNumThreads();j++)
+			{
+				Thread *thread = cpu->getThread(i,j);
+				if(thread)
+				{
+					thread->Recover();
+					alu->ReleaseAll();
+				}
+
+			}
+
+		}
+
+		state = context->getState();
+		if(state == 2)
+		{
+			context->Recover();
+		}
+		else
+		{
+			//Not in spec mode
+		}
+
+
+	}
+
+
+
+
+}
 
 void Timing::WriteMemoryConfiguration(misc::IniFile *ini_file)
 {
@@ -520,7 +617,7 @@ void Timing::ParseMemoryConfigurationEntry(misc::IniFile *ini_file,
 				ini_file->getPath().c_str(),
 				section.c_str(),
 				instruction_module_name.c_str()));
-	
+
 	// Add modules to entry list
 	entry_modules.push_back(data_module);
 	if (data_module != instruction_module)
@@ -568,7 +665,7 @@ void Timing::RegisterOptions()
 
 	// Category
 	command_line->setCategory("x86");
-	
+
 	// Option --x86-sim <kind>
 	command_line->RegisterEnum("--x86-sim {functional|detailed} "
 			"(default = functional)",
@@ -598,7 +695,7 @@ void Timing::RegisterOptions()
 	command_line->RegisterString("--x86-debug-trace-cache <file>",
 			TraceCache::debug_file,
 			"Debug information for trace cache.");
-	
+
 	// Option --x86-debug-register-file <file>
 	command_line->RegisterString("--x86-debug-register-file <file>",
 			RegisterFile::debug_file,
@@ -609,6 +706,10 @@ void Timing::RegisterOptions()
 			"Maximum number of cycles for the timing simulator "
 			"to run.  If this maximum is reached, the simulation "
 			"will finish with the X86MaxCycles string.");
+
+	command_line->RegisterBool("--x86-opencl-fast-forward", Cpu::opencl_fast_forward,
+			" Fast-forward (emulate) x86 instructions whenever an OpenCL kernel is not \n"
+			" being executed.  This option is only valid for detailed x86 simulation\n"	);							" )
 
 }
 
@@ -688,7 +789,7 @@ void Timing::DumpSummary(std::ostream &os) const
 	esim::FrequencyDomain *frequency_domain = getFrequencyDomain();
 	double cycle_time = (double) frequency_domain->getCycleTime() / 1e3;
 	os << misc::fmt("SimTime = %.2f [ns]\n", getCycle() * cycle_time);
-	
+
 	// Frequency
 	os << misc::fmt("Frequency = %d [MHz]\n", frequency_domain->getFrequency());
 
@@ -701,7 +802,7 @@ void Timing::DumpSummary(std::ostream &os) const
 	double cycles_per_second = time_in_seconds > 0.0 ?
 			(double) getCycle() / time_in_seconds : 0.0;
 	os << misc::fmt("CyclesPerSecond = %.0f\n", cycles_per_second);
-	
+
 	// Fast-forward instructions
 	os << misc::fmt("FastForwardInstructions = %lld\n", Cpu::getNumFastForwardInstructions());
 
@@ -713,7 +814,7 @@ void Timing::DumpSummary(std::ostream &os) const
 			(double) cpu->getNumCommittedInstructions()
 			/ cpu->getCycle() : 0.0;
 	os << misc::fmt("CommittedInstructionsPerCycle = %.4g\n", instructions_per_cycle);
-	
+
 	// Number of committed micro-instruction
 	os << misc::fmt("CommittedMicroInstructions = %lld\n", cpu->getNumCommittedUinsts());
 
@@ -726,9 +827,9 @@ void Timing::DumpSummary(std::ostream &os) const
 	// Branch prediction accuracy
 	double branch_accuracy = cpu->getNumBranches() ?
 			(double) (cpu->getNumBranches()
-			- cpu->getNumMispredictedBranches())
-			/ cpu->getNumBranches()
-			: 0.0;
+					- cpu->getNumMispredictedBranches())
+					/ cpu->getNumBranches()
+					: 0.0;
 	os << misc::fmt("BranchPredictionAccuracy = %.4g\n", branch_accuracy);
 }
 
@@ -782,7 +883,7 @@ void Timing::DumpUopReport(std::ostream &os, const long long *uop_stats,
 			(double) uinst_total / getCycle() : 0.0);
 	os << misc::fmt("%s.DutyCycle = %.4g\n", prefix.c_str(),
 			getCycle() && peak_ipc ?
-			(double) uinst_total / getCycle() / peak_ipc : 0.0);
+					(double) uinst_total / getCycle() / peak_ipc : 0.0);
 	os << '\n';
 }
 
@@ -819,7 +920,7 @@ void Timing::DumpReport() const
 	os << misc::fmt("CyclesPerSecond = %.0f\n", now ?
 			(double) getCycle() / now * 1e6 : 0.0);
 	os << '\n';
-	
+
 	// Dispatch stage
 	os << "; Dispatch stage\n";
 	DumpUopReport(os, cpu->getNumDispatchedUinstArray(),
@@ -846,8 +947,8 @@ void Timing::DumpReport() const
 	os << misc::fmt("Commit.Mispred = %lld\n", cpu->getNumMispredictedBranches());
 	os << misc::fmt("Commit.PredAcc = %.4g\n", cpu->getNumBranches() ?
 			(double) (cpu->getNumBranches()
-			- cpu->getNumMispredictedBranches())
-			/ cpu->getNumBranches() : 0.0);
+					- cpu->getNumMispredictedBranches())
+					/ cpu->getNumBranches() : 0.0);
 	os << '\n';
 
 	// Report for each core
@@ -906,8 +1007,8 @@ void Timing::DumpReport() const
 		os << misc::fmt("Commit.Mispred = %lld\n", core->getNumMispredictedBranches());
 		os << misc::fmt("Commit.PredAcc = %.4g\n", core->getNumBranches() ?
 				(double) (core->getNumBranches()
-				- core->getNumMispredictedBranches())
-				/ core->getNumBranches() : 0.0);
+						- core->getNumMispredictedBranches())
+						/ core->getNumBranches() : 0.0);
 		os << '\n';
 
 		// Occupancy statistics
@@ -992,8 +1093,8 @@ void Timing::DumpReport() const
 			os << misc::fmt("Commit.Mispred = %lld\n", thread->getNumMispredictedBranches());
 			os << misc::fmt("Commit.PredAcc = %.4g\n", thread->getNumBranches() ?
 					(double) (thread->getNumBranches()
-					- thread->getNumMispredictedBranches())
-					/ thread->getNumBranches() : 0.0);
+							- thread->getNumMispredictedBranches())
+							/ thread->getNumBranches() : 0.0);
 			os << '\n';
 
 			// Occupancy statistics

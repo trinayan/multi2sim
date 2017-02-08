@@ -99,6 +99,7 @@ Cpu::LoadStoreQueueKind Cpu::load_store_queue_kind;
 int Cpu::load_store_queue_size;
 int Cpu::uop_queue_size;
 
+
 esim::Event *Cpu::event_memory_access_start;
 esim::Event *Cpu::event_memory_access_end;
 
@@ -178,6 +179,9 @@ void Cpu::ParseConfiguration(misc::IniFile *ini_file)
 
 void Cpu::Run()
 {
+
+	//if(opencl_fast_forward && !ndranges_running && !esim_finish )
+
 	// Invoke scheduler
 	Schedule();
 
@@ -272,5 +276,5 @@ void Cpu::EmptyTraceList()
 	}
 }
 
-}
 
+}

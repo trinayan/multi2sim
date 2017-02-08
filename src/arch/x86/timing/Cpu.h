@@ -161,8 +161,6 @@ private:
 	// Number of fast forward instructions
 	static long long num_fast_forward_instructions;
 
-
-
 	//
 	// Class members
 	//
@@ -345,6 +343,7 @@ private:
 	
 	
 
+
 	//
 	// Scheduler
 	//
@@ -413,6 +412,10 @@ public:
 	/// Return the dispatch width, as configured by the user
 	static int getDispatchWidth() { return dispatch_width; }
 
+	//Return the nd_Ranges that are running
+
+	static int getNdRangesRunning() { return ndranges_running ;}
+
 	/// Return the type of instruction issue, as configured by the user
 	static IssueKind getIssueKind() { return issue_kind; }
 
@@ -444,8 +447,6 @@ public:
 	
 	/// Read branch predictor configuration from configuration file
 	static void ParseConfiguration(misc::IniFile *ini_file);
-
-
 
 
 	//
@@ -531,10 +532,6 @@ public:
 	/// exit with practically no cost.
 	void Schedule();
 
-
-
-
-	//
 	// Stats
 	//
 
