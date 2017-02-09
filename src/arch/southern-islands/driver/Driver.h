@@ -146,6 +146,7 @@ public:
 	/// Process command-line options
 	static void ProcessOptions();
 
+	bool CheckFused() { return fused; }
 
 
 

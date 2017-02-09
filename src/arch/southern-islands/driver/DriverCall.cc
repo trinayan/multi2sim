@@ -573,6 +573,13 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 	unsigned int global_size[3];
 	unsigned int local_size[3];
 
+	if(CheckFused())
+	{
+		emulator->setGlobalMemory(memory);
+
+	}
+
+
 	// Read arguments
 	memory->Read(args_ptr, sizeof(int), (char *) &kernel_id);
 	memory->Read(args_ptr + 4, sizeof(int), (char *) &work_dim);

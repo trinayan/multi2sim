@@ -162,7 +162,7 @@ private:
 	static long long num_fast_forward_instructions;
 
 	//Number of nd ranges running
-	static volatile int ndranges_running;
+	volatile int ndranges_running;
 
 	//
 	// Class members
@@ -343,8 +343,10 @@ private:
 	// Uop queue size
 	static int uop_queue_size;
 
+	//Used to prevent fetching of new instructions while timing simulator
+	//pipeline completes in flight instructions
 	
-	
+	int flushing;
 
 
 	//
@@ -442,7 +444,7 @@ public:
 		return num_fast_forward_instructions;
 	}
 
-	static volatile int getNdRangeRunning()
+	int getNdRangeRunning()
 	{
 		return ndranges_running;
 	}
@@ -627,6 +629,10 @@ public:
 
 	/// Return the number of mispredicted branches
 	long long getNumMispredictedBranches() const { return num_mispredicted_branches; }
+
+	void setFlushing(int flush) { flushing = flush;}
+
+	int getFlushing()  {return flushing;}
 };
 
 }

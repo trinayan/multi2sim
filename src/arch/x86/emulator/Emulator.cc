@@ -424,6 +424,7 @@ void Emulator::ProcessEvents()
 bool Emulator::Run()
 {
 	// Stop if there is no more contexts
+
 	if (!contexts.size())
 		return false;
 

@@ -31,11 +31,11 @@ Thread::FetchStall Thread::canFetch()
 	// There must be a context mapped to this thread
 	if (!context)
 		return FetchStallContext;
-	
+
 	// The context must be running
 	if (!context->getState(Context::StateRunning))
 		return FetchStallSuspended;
-	
+
 	// The current context must not have been sent an eviction signal
 	if (context->evict_signal)
 		return FetchStallContext;
@@ -45,8 +45,17 @@ Thread::FetchStall Thread::canFetch()
 	if (fetch_queue_occupancy >= Cpu::getFetchQueueSize())
 		return FetchStallFetchQueue;
 
+    //Do not fetch if CPU is flushing the pipelines
+    //Used for transitoning between timing simulator and emulator
+
+	if(cpu->getFlushing())
+	{
+		std::cout << "Flushing";
+		return FetchStallInvalid;
+	}
 	// If the next fetch address belongs to a new block, cache system
 	// must be accessible to read it.
+
 	unsigned block_address = fetch_neip & ~(instruction_module->getBlockSize() - 1);
 	if (block_address != fetch_block_address)
 	{
@@ -58,7 +67,7 @@ Thread::FetchStall Thread::canFetch()
 		if (!instruction_module->canAccess(physical_address))
 			return FetchStallInstructionMemory;
 	}
-	
+
 	// We can fetch
 	return FetchStallUsed;
 }
@@ -161,8 +170,8 @@ Uop *Thread::FetchInstruction(bool fetch_from_trace_cache)
 			// Macro-instruction disassembly
 			if (!uinst_index)
 				Timing::trace << " asm=\""
-						<< *context->getInstruction()
-						<< "\"";
+				<< *context->getInstruction()
+				<< "\"";
 
 			// Micro-instruction disassembly
 			Timing::trace << " uasm=\""
@@ -202,14 +211,14 @@ bool Thread::FetchFromTraceCache()
 	assert(TraceCache::isPresent());
 	if (trace_cache_queue_occupancy >= TraceCache::getQueueSize())
 		return false;
-	
+
 	// Access BTB, branch predictor, and trace cache
 	unsigned eip_branch = branch_predictor->getNextBranch(fetch_neip,
 			instruction_module->getBlockSize());
 	int prediction = eip_branch ?
 			branch_predictor->LookupMultiple(eip_branch,
 					TraceCache::getMaxBranches()) :
-			0;
+					0;
 	TraceCache::Entry *entry;
 	unsigned neip;
 	bool hit = trace_cache->Lookup(fetch_neip,
@@ -218,14 +227,14 @@ bool Thread::FetchFromTraceCache()
 			neip);
 	if (!hit)
 		return 0;
-	
+
 	// Fetch instruction in trace cache line.
 	for (int i = 0; i < entry->getNumMacroInstructions(); i++)
 	{
 		// If instruction caused context to suspend or finish
 		if (!context->getState(Context::StateRunning))
 			break;
-		
+
 		// Insert decoded uops into the trace cache queue. In the
 		// simulation, the uop is inserted into the fetch queue, but its
 		// occupancy is not increased.
@@ -260,7 +269,7 @@ void Thread::Fetch()
 	// Try to fetch from trace cache first
 	if (TraceCache::isPresent() && FetchFromTraceCache())
 		return;
-	
+
 	// If new block to fetch is not the same as the previously fetched (and
 	// stored) block, access the instruction cache.
 	unsigned block_address = fetch_neip & ~(instruction_module->getBlockSize() - 1);
@@ -270,19 +279,19 @@ void Thread::Fetch()
 		mem::Mmu *mmu = context->getMmu();
 		mem::Mmu::Space *mmu_space = context->getMmuSpace();
 		unsigned physical_address = mmu->TranslateVirtualAddress(
-						mmu_space,
-						fetch_neip);
+				mmu_space,
+				fetch_neip);
 
 		// Save last fetched block
 		fetch_block_address = block_address;
 		fetch_address = physical_address;
-		
+
 		// Access instruction cache
 		assert(instruction_module->canAccess(physical_address));
 		fetch_access = instruction_module->Access(
 				mem::Module::AccessLoad,
 				physical_address);
-		
+
 		// Stats
 		num_btb_reads++;
 	}
@@ -295,11 +304,11 @@ void Thread::Fetch()
 		// If instruction caused context to suspend or finish
 		if (!context->getState(Context::StateRunning))
 			break;
-	
+
 		// If fetch queue is full, stop fetching
 		if (fetch_queue_occupancy >= Cpu::getFetchQueueSize())
 			break;
-		
+
 		// Insert macro-instruction into the fetch queue. Since the
 		// macro-instruction information is only available at this
 		// point, we use it to decode instruction now and insert uops
@@ -310,7 +319,7 @@ void Thread::Fetch()
 		// Invalid x86 instruction, no forward progress in loop
 		if (!context->getInstruction()->getSize())
 			break;
-		
+
 		// No uop was produced by this macro-instruction
 		if (!uop)
 			continue;

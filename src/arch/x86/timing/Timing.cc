@@ -20,7 +20,7 @@
 #include <arch/common/Arch.h>
 #include <memory/System.h>
 #include <lib/util/misc.h>
-
+#include <arch/southern-islands/emulator/Emulator.h>
 
 #include "Alu.h"
 #include "Timing.h"
@@ -281,6 +281,7 @@ bool Timing::Run()
 	// Stop if there are no more contexts left
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
+	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 
 	assert(emulator->getNumFinishedContexts() <= emulator->getNumContexts());
 	if (emulator->getNumContexts() == 0)
@@ -293,7 +294,7 @@ bool Timing::Run()
 		FastForward();
 
 	//Optionally fast-forward if opencl is not being executed
-	if (opencl_fast_forward && ! Cpu::getNdRangeRunning() && !esim_engine->hasFinished())
+	if (opencl_fast_forward && !si_emulator->getNumNDRanges() && !esim_engine->hasFinished())
 	{
 
 		FastForwardOpenCL();
@@ -319,6 +320,7 @@ bool Timing::Run()
 	cpu->EmptyTraceList();
 
 	// Run processor stages
+
 	cpu->Run();
 
 	// Process host threads generating events
@@ -347,6 +349,7 @@ void Timing::FastForward()
 
 void Timing::FastForwardOpenCL()
 {
+	//std::cout<<"Fast frwrdng";
 	//Fast forward opencl when host is not running
 
 	Emulator *emulator = Emulator::getInstance();
@@ -354,8 +357,11 @@ void Timing::FastForwardOpenCL()
 
 	int i , j;
 
+	cpu->setFlushing(1);
+
 	emulator->context_debug << "Entering fast forward";
 
+	//Clear the pipelines
 	for( i=0; i < Cpu::getNumCores();i++)
 	{
 
@@ -378,6 +384,7 @@ void Timing::FastForwardOpenCL()
 		Context *context = it->get();
 	    if(context->getState(Context::StateSpecMode))
 	    {
+
 	    	emulator->context_debug<<"Spec mode";
 	    	context->Recover();
 	    }
@@ -385,21 +392,28 @@ void Timing::FastForwardOpenCL()
 	    else
 	    {
 		//Not in spec mode
-	    	emulator->context_debug<<"Not in spec mode";
+
+;	    	emulator->context_debug<<"Not in spec mode";
 	    }
 	}
 
+	cpu->setFlushing(0);
 
-	while ( (Cpu::getNdRangeRunning()) && (!esim_engine->hasFinished())  )
+
+	SI::Emulator *si_emulator = SI::Emulator::getInstance();
+    //Fast forward
+	while ((!si_emulator->getNumNDRanges()  && !esim_engine->hasFinished()))
 	{
-
 		emulator->Run();
+
 		if(!emulator->getNumContexts())
 		{
+
 			esim_engine->Finish("Finished");
 		}
 
 	}
+	std::cout<<"Fast forwarding end";
 
 	//Clear the pipelines
 	if(!esim_engine->hasFinished())
@@ -436,6 +450,7 @@ void Timing::FastForwardOpenCL()
 		    	emulator->context_debug<<"Not in Spec mode";
 		    }
 		}
+
 }
 
 void Timing::WriteMemoryConfiguration(misc::IniFile *ini_file)

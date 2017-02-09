@@ -98,7 +98,7 @@ int Cpu::instruction_queue_size;
 Cpu::LoadStoreQueueKind Cpu::load_store_queue_kind;
 int Cpu::load_store_queue_size;
 int Cpu::uop_queue_size;
-volatile int Cpu::ndranges_running;
+//volatile int Cpu::ndranges_running;
 
 
 
