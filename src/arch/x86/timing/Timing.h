@@ -70,7 +70,7 @@ class Timing : public comm::Timing
 
 	// Frequency of memory system in MHz
 	static int frequency;
-
+	static int opencl_fast_forward;
 	
 	
 	//
@@ -125,10 +125,7 @@ public:
 	static const int trace_version_minor;
 
 	/* Count of current OpenCL ND-Ranges executing on this CPU */
-		volatile int ndranges_running;
 
-
-	//
 	// Class members
 	//
 

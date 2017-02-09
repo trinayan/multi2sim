@@ -161,6 +161,9 @@ private:
 	// Number of fast forward instructions
 	static long long num_fast_forward_instructions;
 
+	//Number of nd ranges running
+	static volatile int ndranges_running;
+
 	//
 	// Class members
 	//
@@ -414,8 +417,6 @@ public:
 
 	//Return the nd_Ranges that are running
 
-	static int getNdRangesRunning() { return ndranges_running ;}
-
 	/// Return the type of instruction issue, as configured by the user
 	static IssueKind getIssueKind() { return issue_kind; }
 
@@ -439,6 +440,11 @@ public:
 	static long long getNumFastForwardInstructions()
 	{
 		return num_fast_forward_instructions;
+	}
+
+	static volatile int getNdRangeRunning()
+	{
+		return ndranges_running;
 	}
 
 	/// Return the maximum number of cycles to simulate, as configured by

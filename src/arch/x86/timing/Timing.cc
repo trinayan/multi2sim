@@ -19,6 +19,8 @@
 
 #include <arch/common/Arch.h>
 #include <memory/System.h>
+#include <lib/util/misc.h>
+
 
 #include "Alu.h"
 #include "Timing.h"
@@ -33,6 +35,7 @@ esim::Trace Timing::trace;
 
 const int Timing::trace_version_major = 1;
 const int Timing::trace_version_minor = 671;
+
 
 
 //
@@ -243,6 +246,7 @@ bool Timing::help = false;
 
 int Timing::frequency = 1000;
 
+int Timing::opencl_fast_forward;
 
 Timing::Timing() : comm::Timing("x86")
 {
@@ -289,9 +293,11 @@ bool Timing::Run()
 		FastForward();
 
 	//Optionally fast-forward if opencl is not being executed
-	if (Cpu::opencl_fast_forward && ! Cpu::getNdRangesRunning() && !esim_engine->hasFinished())
-		FastForwardOpenCL();
+	if (opencl_fast_forward && ! Cpu::getNdRangeRunning() && !esim_engine->hasFinished())
+	{
 
+		FastForwardOpenCL();
+	}
 	// Stop if maximum number of CPU instructions exceeded
 
 	if (Emulator::getMaxInstructions()
@@ -345,13 +351,10 @@ void Timing::FastForwardOpenCL()
 
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
-	Context *context; // Maybe incorrect?
-	Cpu *cpu = getCpu();
-	int state;
 
 	int i , j;
 
-	//emulator->context_debug  (see context.cc on how to call
+	emulator->context_debug << "Entering fast forward";
 
 	for( i=0; i < Cpu::getNumCores();i++)
 	{
@@ -366,34 +369,40 @@ void Timing::FastForwardOpenCL()
 				thread->Recover();
 				alu->ReleaseAll();
 			}
-
 		}
 
 	}
 
-	state = context->getState();
-	if(state == 2)
+	for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
 	{
-		context->Recover();
-	}
-	else
-	{
+		Context *context = it->get();
+	    if(context->getState(Context::StateSpecMode))
+	    {
+	    	emulator->context_debug<<"Spec mode";
+	    	context->Recover();
+	    }
+
+	    else
+	    {
 		//Not in spec mode
+	    	emulator->context_debug<<"Not in spec mode";
+	    }
 	}
 
-	while ( (!Cpu::ndranges_running ) && (!esim_engine->hasFinished())  )
+
+	while ( (Cpu::getNdRangeRunning()) && (!esim_engine->hasFinished())  )
 	{
 
 		emulator->Run();
-		if(!emulator->contexts.size())
+		if(!emulator->getNumContexts())
 		{
-			esim_engine->finish = true;
+			esim_engine->Finish("Finished");
 		}
 
 	}
 
 	//Clear the pipelines
-	if(!esim_engine->finish)
+	if(!esim_engine->hasFinished())
 	{
 		for( i=0; i < Cpu::getNumCores();i++)
 		{
@@ -410,25 +419,23 @@ void Timing::FastForwardOpenCL()
 				}
 
 			}
-
 		}
+	  }
 
-		state = context->getState();
-		if(state == 2)
+	for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
 		{
-			context->Recover();
+			Context *context = it->get();
+		    if(context->getState(Context::StateSpecMode))
+		    {
+		    	emulator->context_debug<<"Spec mode";
+		    	context->Recover();
+		    }
+
+		    else
+		    {
+		    	emulator->context_debug<<"Not in Spec mode";
+		    }
 		}
-		else
-		{
-			//Not in spec mode
-		}
-
-
-	}
-
-
-
-
 }
 
 void Timing::WriteMemoryConfiguration(misc::IniFile *ini_file)
@@ -707,9 +714,10 @@ void Timing::RegisterOptions()
 			"to run.  If this maximum is reached, the simulation "
 			"will finish with the X86MaxCycles string.");
 
-	command_line->RegisterBool("--x86-opencl-fast-forward", Cpu::opencl_fast_forward,
-			" Fast-forward (emulate) x86 instructions whenever an OpenCL kernel is not \n"
-			" being executed.  This option is only valid for detailed x86 simulation\n"	);							" )
+
+	command_line->RegisterInt32("--x86-opencl-fast-forward", Timing::opencl_fast_forward,
+			" Fast-forward (emulate) x86 instructions whenever an OpenCL kernel is not "
+			" being executed.  This option is only valid for detailed x86 simulation. "	);
 
 }
 
