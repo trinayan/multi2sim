@@ -21,6 +21,7 @@
 
 #include <arch/southern-islands/disassembler/Argument.h>
 #include <arch/southern-islands/emulator/Emulator.h>
+#include <arch/x86/emulator/Emulator.h>
 #include <arch/southern-islands/timing/Gpu.h>
 #include <arch/southern-islands/timing/Timing.h>
 #include <arch/x86/emulator/Context.h>
@@ -71,13 +72,13 @@ int Driver::CallMemAlloc(comm::Context *context,
 	SI::Emulator *si_emu = SI::Emulator::getInstance();	
 	mem::Memory *video_mem = si_emu->getVideoMemory();
 	video_mem->Map(si_emu->getVideoMemoryTop(), size,
-		mem::Memory::AccessRead | mem::Memory::AccessWrite);
+			mem::Memory::AccessRead | mem::Memory::AccessWrite);
 
 	// Virtual address of memory object 
 	unsigned device_ptr = si_emu->getVideoMemoryTop();
 
 	debug << misc::fmt("\t%d bytes of device memory allocated at 0x%x\n",
-		size, device_ptr);
+			size, device_ptr);
 
 	// For now, memory allocation in device memory is done by just 
 	// incrementing a pointer to the top of the global memory space. 
@@ -104,7 +105,7 @@ int Driver::CallMemRead(comm::Context *context,
 	unsigned host_ptr;
 	unsigned device_ptr;
 	unsigned size;
-	
+
 	// Check for fused memory
 	if (fused)                                                       
 		throw Error(misc::fmt("%s: GPU is set as a fused device, "
@@ -129,7 +130,7 @@ int Driver::CallMemRead(comm::Context *context,
 	auto buffer = misc::new_unique_array<char>(size);
 	video_memory->Read(device_ptr, size, buffer.get());
 	memory->Write(host_ptr, size, buffer.get());
-	
+
 	// Return                                                         
 	return 0; 
 }
@@ -192,7 +193,7 @@ int Driver::CallMemCopy(comm::Context *context,
 {
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 	mem::Memory *video_memory = emulator->getVideoMemory();
-	
+
 	// Arguments
 	unsigned int dest_ptr;                                                   
 	unsigned int src_ptr;                                                    
@@ -238,7 +239,7 @@ int Driver::CallMemFree(comm::Context *context,
 
 	// Read Arguments	
 	//memory->Read(args_ptr, sizeof(unsigned), (char *) &device_ptr);
-	
+
 	// debug
 	//debug << misc::fmt("\tdevice_ptr = %u\n", device_ptr);                         
 
@@ -420,10 +421,10 @@ int Driver::CallKernelSetArgValue(comm::Context *context,
 		throw Error(misc::fmt("Invalid type for argument %d", index));
 
 	debug << misc::fmt("\tname=%s\n", (arg->name).c_str());
-	
+
 	// Dynamically allocate value_ptr and release it so ownership can be
 	// taken by the unique pointer in class Arg
-	
+
 	auto value = misc::new_unique_array<char>(size);
 	memory->Read(host_ptr, size, value.get());
 
@@ -561,6 +562,7 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 {
 	// Get emulator and timing instance
 	Emulator *emulator = Emulator::getInstance();
+	x86::Emulator *x86_emulator = x86::Emulator::getInstance();
 
 	// Arguments
 	int kernel_id;
@@ -573,7 +575,7 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 	unsigned int global_size[3];
 	unsigned int local_size[3];
 
-	if(CheckFused())
+	if(fused)
 	{
 		emulator->setGlobalMemory(memory);
 
@@ -589,10 +591,10 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 
 	// Debug
 	debug << misc::fmt("\tkernel_id=%d, work_dim=%d\n", 
-		kernel_id, work_dim);
+			kernel_id, work_dim);
 	debug << misc::fmt("\tglobal_offset_ptr=0x%x, global_size_ptr=0x%x, "
-		"local_size_ptr=0x%x\n", global_offset_ptr, global_size_ptr, local_size_ptr);
-	
+			"local_size_ptr=0x%x\n", global_offset_ptr, global_size_ptr, local_size_ptr);
+
 	// Debug 
 	assert(work_dim >= 1 && work_dim <= 3);
 	memory->Read(global_offset_ptr, work_dim * 4, (char *) global_offset);
@@ -609,10 +611,15 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 	SI::Kernel *kernel = getKernelById(kernel_id);
 	if (!kernel)
 		throw Error(misc::fmt("%s: invalid kernel ID (%d)", 
-			__FUNCTION__, kernel_id));
+				__FUNCTION__, kernel_id));
 
 	// Create ND-Range
 	NDRange *ndrange = emulator->addNDRange();
+
+	//Required for shared virtual memory.
+	//It will set the ndrange address space to be the same as the cpu contexts address space
+	//ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace();
+
 	debug << misc::fmt("\tcreated ndrange %d\n", ndrange->getId());
 
 	// Initialize from kernel binary encoding dictionary
@@ -638,7 +645,7 @@ int Driver::CallNDRangeGetNumBufferEntries(comm::Context *context,
 
 	// Read in arguments                                                          
 	memory->Read(args_ptr, sizeof(int), (char *) &host_ptr);
-	
+
 	// TODO - Implement this part for timing simulator
 	// if (si_gpu)                                                              
 	// {                                                                        
@@ -648,7 +655,7 @@ int Driver::CallNDRangeGetNumBufferEntries(comm::Context *context,
 	// }                                                                        
 	//else                                                                     
 	//{                                                                        
-	
+
 	// Set available buffer entries
 	available_buffer_entries = MaxWorkGroupBufferSize;
 
@@ -674,7 +681,7 @@ int Driver::CallNDRangeSendWorkGroups(comm::Context *context,
 {
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	
+
 	// Read arguments
 	int ndrange_id;                                                          
 	unsigned work_group_start;                                           
@@ -690,7 +697,7 @@ int Driver::CallNDRangeSendWorkGroups(comm::Context *context,
 	if (!ndrange)                                                            
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)",
 				__FUNCTION__, ndrange_id));  
-	
+
 	// Debug
 	debug << misc::fmt("\tndrange %d\n", ndrange_id);                             
 
@@ -721,7 +728,7 @@ int Driver::CallNDRangeFinish(comm::Context *context,
 {
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	
+
 	int ndrange_id;
 
 	// Read arguments
@@ -729,7 +736,7 @@ int Driver::CallNDRangeFinish(comm::Context *context,
 
 	// Get ndrange
 	NDRange *ndrange = emulator->getNDRangeById(ndrange_id);
-	
+
 	// Check for ndrange
 	if (!ndrange)
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)",
@@ -773,31 +780,46 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 {
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	
+
 	int kernel_id;
 	int ndrange_id;
 	unsigned table_ptr;
 	unsigned cb_ptr;
-	
+
 	// Read arguments
 	memory->Read(args_ptr, sizeof(int), (char *) &ndrange_id);
 	memory->Read(args_ptr + 4, sizeof(int), (char *) &kernel_id);
 	memory->Read(args_ptr + 8, sizeof(int), (char *) &table_ptr);
 	memory->Read(args_ptr + 12, sizeof(int), (char *) &cb_ptr);
-	
+
 	// Get NDRange
 	NDRange *ndrange = emulator->getNDRangeById(ndrange_id);
 	if (!ndrange)
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)", 
-			__FUNCTION__, ndrange_id));
+				__FUNCTION__, ndrange_id));
 
 	// Get kernel
 	SI::Kernel *kernel = getKernelById(kernel_id);
 	if (!kernel)
 		throw Error(misc::fmt("%s: invalid kernel ID (%d)", 
-			__FUNCTION__, kernel_id));
+				__FUNCTION__, kernel_id));
 
-	// TODO - Add support for fused memory
+	// Adding support for fused memory
+	if(fused)
+	{
+		table_ptr = ( table_ptr  + 15) & 0xFFFFFFF0;
+		cb_ptr =    (cb_ptr + 15) & 0xFFFFFFF0;
+
+		ndrange->setConstBufferTable(table_ptr);
+		ndrange->setResourceTable ((ndrange->getConstBufferTableAddr()+ ndrange->ConstBufTableSize + 16) & 0xFFFFFFF0) ;
+		ndrange->setUAVTable ((ndrange->getResourceTableAddr() + ndrange->ResourceTableSize + 16) & 0xFFFFFFF0);
+
+		ndrange->setCB0(cb_ptr);
+
+		kernel->NDRangeSetupMMU(ndrange,table_ptr,cb_ptr,context);
+
+
+	}
 	// TODO - Add support for timing simulator
 
 	// Allocate tables and constant buffers
@@ -808,7 +830,7 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 	kernel->SetupNDRangeConstantBuffers(ndrange);
 	kernel->SetupNDRangeArgs(ndrange);
 	kernel->DebugNDRangeState(ndrange);
-	
+
 	// Return
 	return 0;
 }
@@ -822,7 +844,19 @@ int Driver::CallNDRangeSetFused(comm::Context *context,
 		unsigned args_ptr)
 {
 	// Read arguments
+	SI::Emulator *emulator = SI::Emulator::getInstance();
 	memory->Read(args_ptr, sizeof(bool), (char *) &fused);
+
+	if(fused)
+	{
+	  debug << misc::fmt("\tnot fused\n");
+      emulator->getMmu()->read_only = 1;
+	}
+	else
+	{
+		debug << misc::fmt("\tnot fused\n");
+	}
+
 
 	// With a fused device, the GPU MMU will be initialized by               
 	// the CPU                                                         
@@ -833,9 +867,9 @@ int Driver::CallNDRangeSetFused(comm::Context *context,
 	//	si_gpu->mmu->read_only = 1;                                      
 	// }                                                                        
 	// else                                                                     
-	//{                                                                       
-	
-	debug << misc::fmt("\tnot fused\n");
+	//{
+
+
 
 	// Return
 	return 0;
@@ -851,7 +885,7 @@ int Driver::CallNDRangeFlush(comm::Context *context,
 {
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	
+
 	// TODO - add support for timing simulator
 	// If there's not a timing simulator, no need to flush
 	// if (!si_gpu)                                                             
@@ -861,12 +895,12 @@ int Driver::CallNDRangeFlush(comm::Context *context,
 	// Read arguments
 	int ndrange_id;                                                          
 	memory->Read(args_ptr, sizeof(int), (char *) &ndrange_id);
-	
+
 	// Get NDRange
 	NDRange *ndrange = emulator->getNDRangeById(ndrange_id);
 	if (!ndrange)
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)", 
-			__FUNCTION__, ndrange_id));
+				__FUNCTION__, ndrange_id));
 
 	debug << misc::fmt("\tndrange %d\n", ndrange_id);                             
 
@@ -888,17 +922,17 @@ int Driver::CallNDRangeFree(comm::Context *context,
 {
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	
+
 	int ndrange_id;                                                          
-	
+
 	// Read arguments
 	memory->Read(args_ptr, sizeof(int), (char *) &ndrange_id);
-	
+
 	// Get NDRange
 	NDRange *ndrange = emulator->getNDRangeById(ndrange_id);
 	if (!ndrange)
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)", 
-			__FUNCTION__, ndrange_id));
+				__FUNCTION__, ndrange_id));
 
 	// Free       
 	emulator->RemoveNDRange(ndrange);

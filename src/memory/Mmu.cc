@@ -35,8 +35,8 @@ namespace mem
 //
 
 Mmu::Space::Space(const std::string &name, Mmu *mmu) :
-		name(name),
-		mmu(mmu)
+				name(name),
+				mmu(mmu)
 {
 	// Debug
 	debug << misc::fmt("[MMU %s] Space %s created\n",
@@ -99,7 +99,7 @@ void Mmu::ProcessOptions()
 
 
 Mmu::Mmu(const std::string &name) :
-		name(name)
+				name(name)
 {
 	// Debug
 	debug << misc::fmt("[MMU %s] Memory management unit created\n",
@@ -131,7 +131,7 @@ unsigned Mmu::TranslateVirtualAddress(Space *space,
 		// Create new page
 		pages.emplace_back(new Page(space, virtual_tag,
 				top_physical_address));
-		
+
 		// Add page to virtual and physical maps
 		page = pages.back().get();
 		physical_pages[page->getPhysicalAddress()] = page;
@@ -207,14 +207,56 @@ bool Mmu::TranslatePhysicalAddress(unsigned physical_address,
 	// Page found
 	return true;
 }
-	
+
+void Mmu::MMUCopyTranslation(Mmu *mmu, Space *self_address_space_index,
+        Space *other_address_space_index, unsigned int vtl_addr,
+        unsigned int size)
+{
+	//
+	/*assert(self_mmu->read_only);
+	assert(!other_mmu->read_only);
+	assert(self_mmu->PageSize == other_mmu->PageSize);
+	assert(self_mmu->PageMask == other_mmu->PageMask);
+
+	Page *self_page, *other_page;
+
+	int vtl_index;
+	int phy_index;
+
+	unsigned int addr = vtl_addr & PageMask;
+
+	while (virtual_tag <= (vtl_addr + size))
+	{
+		other_page = other_address_space->getPage(vtl_addr);
+		phy_index  = other_page->getPhysicalAddress() >> LogPageSize;
+		Page *page = self_address_space->getPage(virtual_tag);
+		if(pages.size() <= phy_index && page == nullptr)
+		{
+			// Create new page
+			pages.emplace_back(new Page(self_address_space, virtual_tag,
+						top_physical_address));
+		}
+		else if (page != nullptr)
+		{
+			   self_page = page;
+		}
+		else if (page == nullptr)
+		{
+
+		}
+
+	}*/
+}
+
 
 bool Mmu::isValidPhysicalAddress(unsigned physical_address)
-{
-	unsigned physical_tag = physical_address & PageMask;
-	auto it = physical_pages.find(physical_tag);
-	return it != physical_pages.end();
-}
+		{
+			unsigned physical_tag = physical_address & PageMask;
+			auto it = physical_pages.find(physical_tag);
+			return it != physical_pages.end();
+		}
+
+
 
 
 } // namespace mem

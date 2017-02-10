@@ -19,6 +19,7 @@
 
 #include <arch/southern-islands/emulator/Emulator.h>
 #include <arch/southern-islands/emulator/NDRange.h>
+#include <arch/x86/emulator/Emulator.h>
 #include <lib/cpp/Error.h>
 #include <lib/cpp/Misc.h>
 #include <string.h>
@@ -31,24 +32,24 @@ namespace SI
 {
 
 static const char *OpenCLErrSIKernelSymbol =
-	"\tThe ELF file analyzer is trying to find a name in the ELF symbol "
-	"table. If it is not found, it probably means that your application is "
-	"requesting execution of a kernel function that is not present in the "
-	"encoded binary. Please, check the parameters passed to the "
-	"'clCreateKernel' function in your application.\n"
-	"\n"
-	"\tThis could also be a symptom of compiling an OpenCL kernel source "
-	"on a tmachine with an installation of the AMD SDK (using 'm2c') "
-	"but with an incorrect or missing installation of the GPU driver. In "
-	"this case, the tool will still compile the kernel into LLVM, but the "
-	"ISA section will be missing in the kernel binary.";
+		"\tThe ELF file analyzer is trying to find a name in the ELF symbol "
+		"table. If it is not found, it probably means that your application is "
+		"requesting execution of a kernel function that is not present in the "
+		"encoded binary. Please, check the parameters passed to the "
+		"'clCreateKernel' function in your application.\n"
+		"\n"
+		"\tThis could also be a symptom of compiling an OpenCL kernel source "
+		"on a tmachine with an installation of the AMD SDK (using 'm2c') "
+		"but with an incorrect or missing installation of the GPU driver. In "
+		"this case, the tool will still compile the kernel into LLVM, but the "
+		"ISA section will be missing in the kernel binary.";
 
 static const char *OpenCLErrSIKernelMetadata =
-	"\tThe kernel binary loaded by your application is a valid ELF file. "
-	"In this file, a '.rodata' section contains specific information about "
-	"the OpenCL kernel. However, this information is only partially "
-	"supported by Multi2Sim. To request support for this error, please "
-	"report a bug on www.multi2sim.org.";
+		"\tThe kernel binary loaded by your application is a valid ELF file. "
+		"In this file, a '.rodata' section contains specific information about "
+		"the OpenCL kernel. However, this information is only partially "
+		"supported by Multi2Sim. To request support for this error, please "
+		"report a bug on www.multi2sim.org.";
 
 
 void Kernel::Expect(std::vector<std::string> &token_list,
@@ -92,7 +93,7 @@ void Kernel::LoadMetaDataV3()
 	std::istringstream metadata_stream;
 	metadata_symbol->getStream(metadata_stream);
 
- 	bool err;
+	bool err;
 	std::string line;
 	std::string token;
 	std::vector<std::string> token_list;
@@ -136,7 +137,7 @@ void Kernel::LoadMetaDataV3()
 					*token_list.begin(), err);
 			Argument::DataType data_type = 
 					static_cast<Argument::DataType>(
-					data_type_int);
+							data_type_int);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid data "
 						"type: %s.\n%s",
@@ -165,14 +166,14 @@ void Kernel::LoadMetaDataV3()
 			// Create argument object
 			std::unique_ptr<SI::Argument> arg(
 					new SI::ValueArgument(
-					name, data_type, num_elems,
-					constant_buffer_num, constant_offset));
+							name, data_type, num_elems,
+							constant_buffer_num, constant_offset));
 
 			// Debug
 			Driver::debug << misc::fmt("\targument '%s' - "
-				"value stored in constant buffer %d at "
-				"offset %d\n", name.c_str(), 
-				constant_buffer_num, constant_offset);
+					"value stored in constant buffer %d at "
+					"offset %d\n", name.c_str(),
+					constant_buffer_num, constant_offset);
 
 			// Add argument and clear token list
 			arguments.push_back(std::move(arg));
@@ -191,7 +192,7 @@ void Kernel::LoadMetaDataV3()
 			// Token 1 - Name
 			token_list.erase(token_list.begin());
 			std::string name = *token_list.begin();
-		
+
 			// Token 2 - Data type
 			token_list.erase(token_list.begin());
 			const char *data_type_string = 
@@ -200,7 +201,7 @@ void Kernel::LoadMetaDataV3()
 					*token_list.begin(), err);
 			Argument::DataType data_type = 
 					static_cast<Argument::DataType>(
-					data_type_int);
+							data_type_int);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid data "
 						"type: %s\n%s",
@@ -236,7 +237,7 @@ void Kernel::LoadMetaDataV3()
 					*token_list.begin(), err);
 			Argument::Scope arg_scope = 
 					static_cast<Argument::Scope>(
-					arg_scope_int);
+							arg_scope_int);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid scope: "
 						"%s\n%s", arg_scope_string,
@@ -258,10 +259,10 @@ void Kernel::LoadMetaDataV3()
 					(*token_list.begin()).c_str();
 			int access_type_int = 
 					Argument::access_type_map.MapString(
-					*token_list.begin(), err);
+							*token_list.begin(), err);
 			Argument::AccessType access_type = 
 					static_cast<Argument::AccessType>(
-					access_type_int);
+							access_type_int);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid access "
 						"type: %s\n%s", 
@@ -278,17 +279,17 @@ void Kernel::LoadMetaDataV3()
 
 			// Create argument object
 			std::unique_ptr<SI::Argument> 
-					arg(new SI::PointerArgument(name, 
+			arg(new SI::PointerArgument(name,
 					data_type, num_elems, 
 					constant_buffer_num, constant_offset, 
 					arg_scope, buffer_num, alignment, 
 					access_type));
-			
+
 			// Debug
 			Driver::debug << misc::fmt("\targument '%s' - "
-				"Pointer stored in constant buffer %d at "
-				"offset %d\n", name.c_str(), 
-				constant_buffer_num, constant_offset);
+					"Pointer stored in constant buffer %d at "
+					"offset %d\n", name.c_str(),
+					constant_buffer_num, constant_offset);
 
 			// Add argument and clear token list
 			arguments.push_back(std::move(arg));
@@ -311,7 +312,7 @@ void Kernel::LoadMetaDataV3()
 			int dimension = misc::StringToInt(*token_list.begin());
 			const char*dimension_string = 
 					Argument::dimension_map.MapValue(
-					dimension, err);
+							dimension, err);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid image "
 						"dimensions: %s\n%s",
@@ -323,7 +324,7 @@ void Kernel::LoadMetaDataV3()
 			int access_type_int = misc::StringToInt(*token_list.begin());
 			Argument::AccessType access_type = 
 					static_cast<Argument::AccessType>(
-					access_type_int);
+							access_type_int);
 			if (err)
 				throw Driver::Error(misc::fmt("Invalid access "
 						"type: %s\n%s", token.c_str(),
@@ -354,9 +355,9 @@ void Kernel::LoadMetaDataV3()
 
 			// Debug
 			Driver::debug << misc::fmt("\targument '%s' - Image stored in "
-				"constant buffer %d at offset %d\n",
-				name.c_str(), constant_buffer_num,
-				constant_offset);
+					"constant buffer %d at offset %d\n",
+					name.c_str(), constant_buffer_num,
+					constant_offset);
 
 			// Add argument and clear token list
 			arguments.push_back(std::move(arg));
@@ -392,7 +393,7 @@ void Kernel::LoadMetaDataV3()
 			// Create argument object
 			std::unique_ptr<SI::Argument> arg(
 					new SI::SamplerArgument(name, id, 
-					location, value));
+							location, value));
 
 			// Add argument and clear token list
 			arguments.push_back(std::move(arg));
@@ -661,124 +662,124 @@ void Kernel::CreateBufferDescriptor(unsigned base_addr,
 		elem_size = 1 * num_elems;
 		break;
 
-	case Argument::DataTypeInt16:
-	case Argument::DataTypeUInt16:
+		case Argument::DataTypeInt16:
+		case Argument::DataTypeUInt16:
 
-		num_format = Emulator::BufDescNumFmtSint;
-		switch (num_elems)
-		{
+			num_format = Emulator::BufDescNumFmtSint;
+			switch (num_elems)
+			{
 
-		case 1:
-			data_format = Emulator::BufDescDataFmt16;
+			case 1:
+				data_format = Emulator::BufDescDataFmt16;
+				break;
+
+			case 2:
+				data_format = Emulator::BufDescDataFmt16_16;
+				break;
+
+			case 4:
+				data_format = Emulator::BufDescDataFmt16_16_16_16;
+				break;
+
+			default:
+
+				throw Driver::Error(misc::fmt("Invalid number of "
+						"i16/u16 elements (%d)", num_elems));
+			}
+			elem_size = 2 * num_elems;
 			break;
 
-		case 2:
-			data_format = Emulator::BufDescDataFmt16_16;
-			break;
+			case Argument::DataTypeInt32:
+			case Argument::DataTypeUInt32:
 
-		case 4:
-			data_format = Emulator::BufDescDataFmt16_16_16_16;
-			break;
+				num_format = Emulator::BufDescNumFmtSint;
+				switch (num_elems)
+				{
 
-		default:
+				case 1:
+					data_format = Emulator::BufDescDataFmt32;
+					break;
 
-			throw Driver::Error(misc::fmt("Invalid number of "
-					"i16/u16 elements (%d)", num_elems));
-		}
-		elem_size = 2 * num_elems;
-		break;
+				case 2:
+					data_format = Emulator::BufDescDataFmt32_32;
+					break;
 
-	case Argument::DataTypeInt32:
-	case Argument::DataTypeUInt32:
+				case 3:
+					data_format = Emulator::BufDescDataFmt32_32_32;
+					break;
 
-		num_format = Emulator::BufDescNumFmtSint;
-		switch (num_elems)
-		{
+				case 4:
+					data_format = Emulator::BufDescDataFmt32_32_32_32;
+					break;
 
-		case 1:
-			data_format = Emulator::BufDescDataFmt32;
-			break;
+				default:
 
-		case 2:
-			data_format = Emulator::BufDescDataFmt32_32;
-			break;
+					throw Driver::Error(misc::fmt("Invalid number of "
+							"i32/u32 elements (%d)", num_elems));
+				}
+				elem_size = 4 * num_elems;
+				break;
 
-		case 3:
-			data_format = Emulator::BufDescDataFmt32_32_32;
-			break;
+				case Argument::DataTypeFloat:
 
-		case 4:
-			data_format = Emulator::BufDescDataFmt32_32_32_32;
-			break;
+					num_format = Emulator::BufDescNumFmtFloat;
+					switch (num_elems)
+					{
+					case 1:
+						data_format = Emulator::BufDescDataFmt32;
+						break;
 
-		default:
+					case 2:
+						data_format = Emulator::BufDescDataFmt32_32;
+						break;
 
-			throw Driver::Error(misc::fmt("Invalid number of "
-					"i32/u32 elements (%d)", num_elems));
-		}
-		elem_size = 4 * num_elems;
-		break;
+					case 3:
+						data_format = Emulator::BufDescDataFmt32_32_32;
+						break;
 
-	case Argument::DataTypeFloat:
+					case 4:
+						data_format = Emulator::BufDescDataFmt32_32_32_32;
+						break;
 
-		num_format = Emulator::BufDescNumFmtFloat;
-		switch (num_elems)
-		{
-		case 1:
-			data_format = Emulator::BufDescDataFmt32;
-			break;
+					default:
 
-		case 2:
-			data_format = Emulator::BufDescDataFmt32_32;
-			break;
+						throw Driver::Error(misc::fmt("Invalid number of "
+								"float elements (%d)", num_elems));
+					}
+					elem_size = 4 * num_elems;
+					break;
 
-		case 3:
-			data_format = Emulator::BufDescDataFmt32_32_32;
-			break;
+					case Argument::DataTypeDouble:
 
-		case 4:
-			data_format = Emulator::BufDescDataFmt32_32_32_32;
-			break;
+						num_format = Emulator::BufDescNumFmtFloat;
+						switch (num_elems)
+						{
+						case 1:
+							data_format = Emulator::BufDescDataFmt32_32;
+							break;
 
-		default:
+						case 2:
+							data_format = Emulator::BufDescDataFmt32_32_32_32;
+							break;
 
-			throw Driver::Error(misc::fmt("Invalid number of "
-					"float elements (%d)", num_elems));
-		}
-		elem_size = 4 * num_elems;
-		break;
+						default:
 
-	case Argument::DataTypeDouble:
+							throw Driver::Error(misc::fmt("Invalid number of "
+									"double elements (%d)", num_elems));
+						}
+						elem_size = 8 * num_elems;
+						break;
+						case Argument::DataTypeStruct:
 
-		num_format = Emulator::BufDescNumFmtFloat;
-		switch (num_elems)
-		{
-		case 1:
-			data_format = Emulator::BufDescDataFmt32_32;
-			break;
+							num_format = Emulator::BufDescNumFmtUint;
+							data_format = Emulator::BufDescDataFmt8;
+							elem_size = 1;
+							break;
 
-		case 2:
-			data_format = Emulator::BufDescDataFmt32_32_32_32;
-			break;
+						default:
 
-		default:
-
-			throw Driver::Error(misc::fmt("Invalid number of "
-					"double elements (%d)", num_elems));
-		}
-		elem_size = 8 * num_elems;
-		break;
-	case Argument::DataTypeStruct:
-
-		num_format = Emulator::BufDescNumFmtUint;
-		data_format = Emulator::BufDescDataFmt8;
-		elem_size = 1;
-		break;
-
-	default:
-
-		throw Driver::Error(misc::fmt("Invalid data type for buffer "
-				"(%d)", data_type));
+							throw Driver::Error(misc::fmt("Invalid data type for buffer "
+									"(%d)", data_type));
 	}
 	assert(num_format != Emulator::BufDescNumFmtInvalid);
 	assert(data_format != Emulator::BufDescDataFmtInvalid);
@@ -797,9 +798,9 @@ void Kernel::CreateBufferDescriptor(unsigned base_addr,
 // Public functions
 
 Kernel::Kernel(int id, const std::string &name, Program *program) :
-		id(id),
-		name(name),
-		program(program)
+				id(id),
+				name(name),
+				program(program)
 {
 	metadata_symbol = program->getSymbol("__OpenCL_" + name + "_metadata");
 	header_symbol = program->getSymbol("__OpenCL_" + name + "_header");
@@ -824,7 +825,7 @@ Kernel::Kernel(int id, const std::string &name, Program *program) :
 	// the 'kernel' symbol.
 	std::string symbol_name = "kernel<" + name + ">.InternalELF";
 	unsigned kernel_buf_size = (unsigned) kernel_symbol->getSize();
-	
+
 	// Get the area of the text section pointed to by the symbol
 	std::istringstream kernel_symbol_stream;
 	kernel_symbol->getStream(kernel_symbol_stream);
@@ -866,8 +867,8 @@ void Kernel::CreateNDRangeTables(NDRange *ndrange /* MMU *gpu_mmu */)
 
 	// Debug print out
 	Driver::debug << misc::fmt("\t%u bytes of device memory allocated at "
-		"0x%x for SI internal tables\n", size_of_tables,
-		emulator->getVideoMemoryTop());
+			"0x%x for SI internal tables\n", size_of_tables,
+			emulator->getVideoMemoryTop());
 
 	// Set constant buffer table address                                     
 	ndrange->setConstBufferTable(emulator->getVideoMemoryTop());                  
@@ -880,7 +881,7 @@ void Kernel::CreateNDRangeTables(NDRange *ndrange /* MMU *gpu_mmu */)
 	// Set uav table address                                                 
 	ndrange->setUAVTable(emulator->getVideoMemoryTop());                          
 	emulator->incVideoMemoryTop(NDRange::UAVTableSize); 
-	
+
 	// Return
 	return;
 }
@@ -944,14 +945,14 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 		{
 			ValueArgument *arg_value = 
 					dynamic_cast<ValueArgument *>(
-					arg.get());
+							arg.get());
 
 			// Value copied directly into device constant memory
 			assert(arg_value->size);
 			ndrange->ConstantBufferWrite(
-				arg_value->getConstantBufferNum(),
-				arg_value->getConstantOffset(),
-				arg_value->getValue(), arg_value->size);
+					arg_value->getConstantBufferNum(),
+					arg_value->getConstantOffset(),
+					arg_value->getValue(), arg_value->size);
 			break;
 		}
 
@@ -959,7 +960,7 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 		{
 			PointerArgument *arg_ptr = 
 					dynamic_cast<PointerArgument *>(
-					arg.get());
+							arg.get());
 
 			switch (arg_ptr->getScope())
 			{
@@ -971,19 +972,19 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 				// Argument value is always NULL, just assign
 				// space for it.
 				ndrange->ConstantBufferWrite(
-					arg_ptr->getConstantBufferNum(),
-					arg_ptr->getConstantOffset(),
-					ndrange->getLocalMemTopPtr(), 4);
+						arg_ptr->getConstantBufferNum(),
+						arg_ptr->getConstantOffset(),
+						ndrange->getLocalMemTopPtr(), 4);
 
 				Driver::debug << misc::fmt("%u bytes at 0x%x", 
-					arg_ptr->size, 
-					ndrange->getLocalMemTop());
+						arg_ptr->size,
+						ndrange->getLocalMemTop());
 
 				ndrange->incLocalMemTop(arg_ptr->size);
 
 				break;
 
-			// UAV
+				// UAV
 			case Argument::ScopeUAV:
 			{
 				Driver::debug << misc::fmt("(0x%x)", 
@@ -991,21 +992,21 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 
 				// Create descriptor for argument
 				CreateBufferDescriptor(
-					arg_ptr->getDevicePtr(),
-					arg_ptr->size,
-					arg_ptr->getNumElems(),
-					arg_ptr->getDataType(), &buffer_descriptor);
+						arg_ptr->getDevicePtr(),
+						arg_ptr->size,
+						arg_ptr->getNumElems(),
+						arg_ptr->getDataType(), &buffer_descriptor);
 
 				// Add to UAV table
 				ndrange->InsertBufferIntoUAVTable(
-					&buffer_descriptor,
-					arg_ptr->getBufferNum());
+						&buffer_descriptor,
+						arg_ptr->getBufferNum());
 
 				// Write 0 to CB1
 				ndrange->ConstantBufferWrite(
-					arg_ptr->getConstantBufferNum(),
-					arg_ptr->getConstantOffset(),
-					&zero, 4);
+						arg_ptr->getConstantBufferNum(),
+						arg_ptr->getConstantOffset(),
+						&zero, 4);
 
 				break;
 			}
@@ -1014,11 +1015,11 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 			case Argument::ScopeHwConstant:
 			{
 				CreateBufferDescriptor(
-					arg_ptr->getDevicePtr(),
-					arg_ptr->size,
-					arg_ptr->getNumElems(),
-					arg_ptr->getDataType(), 
-					&buffer_descriptor);
+						arg_ptr->getDevicePtr(),
+						arg_ptr->size,
+						arg_ptr->getNumElems(),
+						arg_ptr->getDataType(),
+						&buffer_descriptor);
 
 				// Data stored in hw constant memory
 				// uses a 4-byte stride
@@ -1026,14 +1027,14 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 
 				// Add to Constant Buffer table
 				ndrange->InsertBufferIntoConstantBufferTable(
-					&buffer_descriptor,
-					arg_ptr->getBufferNum());
+						&buffer_descriptor,
+						arg_ptr->getBufferNum());
 
 				// Write 0 to CB1
 				ndrange->ConstantBufferWrite(
-					arg_ptr->getConstantBufferNum(),
-					arg_ptr->getConstantOffset(),
-					&zero, 4);
+						arg_ptr->getConstantBufferNum(),
+						arg_ptr->getConstantOffset(),
+						&zero, 4);
 
 				break;
 			}
@@ -1079,7 +1080,7 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 		// Retrieve constant buffer
 		ConstantBuffer *constant_buffer = 
 				program->getConstantBufferByIndex(i);
-		
+
 		// Check if cosntant buffer exists
 		if (!constant_buffer)
 			break;
@@ -1087,11 +1088,11 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 		// Create a buffer descriptor for the constant buffer
 		WorkItem::BufferDescriptor buffer_descriptor;
 		CreateBufferDescriptor(
-		 		constant_buffer->device_address,
-		 		constant_buffer->getSize(),
-		 		4,
-		 		Argument::DataTypeFloat,
-		 		&buffer_descriptor);
+				constant_buffer->device_address,
+				constant_buffer->getSize(),
+				4,
+				Argument::DataTypeFloat,
+				&buffer_descriptor);
 
 		// Data stored in hw constant memory uses a 16-byte stride
 		// XXX Use or don't use?
@@ -1103,6 +1104,62 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 	}
 }
 
+void Kernel::NDRangeSetupMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context)
+{
+	//
+	//SI::Argument *arg;
+	/*SI::Emulator *si_emulator = SI::Emulator::getInstance();
+	x86::Emulator *x86_emulator = x86::Emulator::getInstance();
+
+	assert(ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace()) ;
+
+	//MMUCopyTranslation
+
+	//Map Constant buffers to MMU
+	MMUCopyTranslation(si_emulator->getMmu(),ndrange->address_space,x86_emulator->getMmu(),
+			x86_emulator->getContext(context->getId())->getMmuSpace(),cb_ptr,
+			NDRange::ConstBufTableSize);
+	//Map internal buffers to MMU
+	unsigned int internal_tables_size = NDRange::ConstBufTableSize + NDRange::ResourceTableSize
+			+ NDRange::UAVTableSize;
+
+	MMUCopyTranslation(si_emulator->getMmu(),ndrange->address_space,x86_emulator->getMmu(),
+			x86_emulator->getContext(context->getId())->getMmuSpace(),table_ptr,
+			internal_tables_size);
+
+	for(auto &arg : getArgs())
+	{
+		assert(arg);
+
+				switch(arg->getType())
+				{
+				case Argument::ScopeUAV:
+				{
+					//opencl_Debug
+					MMUCopyTranslation(si_emulator->getMmu(),NDRange::address_space,
+							x86_emulator->getMmu(),
+							x86_emulator->getContext(context->getId())->getMmuSpace(),
+									arg->getDevicePtr(),arg->size);
+									break;
+				}
+
+				case Argument::ScopeHwConstant:
+				{
+					MMUCopyTranslation(si_emulator->getMmu(),NDRange::address_space,
+							x86_emulator->getMmu(),
+							x86_emulator->getContext(context->getId())->getMmuSpace(),
+									arg->getDevicePtr(),arg->size);
+									break;
+
+				}
+				default:
+				{
+					break;
+				}
+
+				}
+	}*/
+}
 
 void Kernel::DebugNDRangeState(NDRange *ndrange)
 {
@@ -1110,118 +1167,118 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 	// Get emulator instance and video memory
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 	mem::Memory *video_memory = emulator->getVideoMemory();
-	
+
 	// Create a buffer descriptor
 	WorkItem::BufferDescriptor buffer_desc;
 
 	// Start writing NDRange debug output
 	Emulator::isa_debug << misc::fmt("\n");
-        Emulator::isa_debug << misc::fmt("================ Initialization Summary ================\n");
-        Emulator::isa_debug << misc::fmt("\n");
+	Emulator::isa_debug << misc::fmt("================ Initialization Summary ================\n");
+	Emulator::isa_debug << misc::fmt("\n");
 
-        // Table locations
-        Emulator::isa_debug << misc::fmt("NDRange table locations:\n");
-        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\t|    Name            |    Address Range        |\n");
-        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\t| Const Buffer table | [%10u:%10u] |\n",
-               		ndrange->getConstBufferTableAddr(),
-                	ndrange->getConstBufferTableAddr() +
-                	NDRange::ConstBufTableSize - 1);
-        Emulator::isa_debug << misc::fmt("\t| Resource table     | [%10u:%10u] |\n",
-                	ndrange->getResourceTableAddr(),
-                	ndrange->getResourceTableAddr() +
-                	NDRange::ResourceTableSize - 1);
-        Emulator::isa_debug << misc::fmt("\t| UAV table          | [%10u:%10u] |\n",
-               		ndrange->getUAVTableAddr(),
-                	ndrange->getUAVTableAddr() + NDRange::UAVTableSize - 1);
-        Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\n");
+	// Table locations
+	Emulator::isa_debug << misc::fmt("NDRange table locations:\n");
+	Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+	Emulator::isa_debug << misc::fmt("\t|    Name            |    Address Range        |\n");
+	Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+	Emulator::isa_debug << misc::fmt("\t| Const Buffer table | [%10u:%10u] |\n",
+			ndrange->getConstBufferTableAddr(),
+			ndrange->getConstBufferTableAddr() +
+			NDRange::ConstBufTableSize - 1);
+	Emulator::isa_debug << misc::fmt("\t| Resource table     | [%10u:%10u] |\n",
+			ndrange->getResourceTableAddr(),
+			ndrange->getResourceTableAddr() +
+			NDRange::ResourceTableSize - 1);
+	Emulator::isa_debug << misc::fmt("\t| UAV table          | [%10u:%10u] |\n",
+			ndrange->getUAVTableAddr(),
+			ndrange->getUAVTableAddr() + NDRange::UAVTableSize - 1);
+	Emulator::isa_debug << misc::fmt("\t------------------------------------------------\n");
+	Emulator::isa_debug << misc::fmt("\n");
 
-        // SREG initialization
-        unsigned user_element_count = 
+	// SREG initialization
+	unsigned user_element_count =
 			binary_file.get()->GetSIDictEntry()->num_user_elements;
 	BinaryUserElement *user_elements =
 			binary_file.get()->GetSIDictEntry()->user_elements;
 	Emulator::isa_debug << misc::fmt("Scalar register initialization prior to execution:\n");
-        Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\t|  Registers  |   Initialization Value    |\n");
-        Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
-        
+	Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
+	Emulator::isa_debug << misc::fmt("\t|  Registers  |   Initialization Value    |\n");
+	Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
+
 	// Iterate through the user elements
 	for (unsigned i = 0; i < user_element_count; i++)
-        {
-                if (user_elements[i].dataClass == BinaryUserDataConstBuffer)
-                {
-                        // Add constant buffer info to debug output
-                        if (user_elements[i].userRegCount > 1)
-                        {
-                                Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  CB%1d "
-                                        	"Descriptor           |\n",
-                                        	user_elements[i].startUserReg,
-                                       		user_elements[i].startUserReg +
-                                        	user_elements[i].userRegCount - 1,
-                                        	user_elements[i].apiSlot);
-                        }
-                        else
-                        {
-                                Emulator::isa_debug << misc::fmt("\t| SREG[%2d]    |  CB%1d "
-                                        	"Descriptor         |\n",
-                                        	user_elements[i].startUserReg,
-                                        	user_elements[i].apiSlot);
-                        }
-                }
+	{
+		if (user_elements[i].dataClass == BinaryUserDataConstBuffer)
+		{
+			// Add constant buffer info to debug output
+			if (user_elements[i].userRegCount > 1)
+			{
+				Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  CB%1d "
+						"Descriptor           |\n",
+						user_elements[i].startUserReg,
+						user_elements[i].startUserReg +
+						user_elements[i].userRegCount - 1,
+						user_elements[i].apiSlot);
+			}
+			else
+			{
+				Emulator::isa_debug << misc::fmt("\t| SREG[%2d]    |  CB%1d "
+						"Descriptor         |\n",
+						user_elements[i].startUserReg,
+						user_elements[i].apiSlot);
+			}
+		}
 
-                else if (user_elements[i].dataClass == BinaryUserDataUAV)
-                {
-                        // Add UAV info to debug output
-                        Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  UAV%-2d "
-                              		"Descriptor         |\n",
-                                	user_elements[i].startUserReg,
-                                	user_elements[i].startUserReg +
-                                	user_elements[i].userRegCount - 1,
-                                	user_elements[i].apiSlot);
-                }
-                else if (user_elements[i].dataClass ==  
-			BinaryUserDataConstBufferTable)
-                {
+		else if (user_elements[i].dataClass == BinaryUserDataUAV)
+		{
+			// Add UAV info to debug output
+			Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  UAV%-2d "
+					"Descriptor         |\n",
+					user_elements[i].startUserReg,
+					user_elements[i].startUserReg +
+					user_elements[i].userRegCount - 1,
+					user_elements[i].apiSlot);
+		}
+		else if (user_elements[i].dataClass ==
+				BinaryUserDataConstBufferTable)
+		{
 			// Add constant buffer table to debug output
-                        Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  Constant Buffer "
-                                	"Table    |\n",
-                                	user_elements[i].startUserReg,
-                                	user_elements[i].startUserReg +
-                                	user_elements[i].userRegCount - 1);
-                }
-                else if (user_elements[i].dataClass == BinaryUserDataUAVTable)
-                {
+			Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  Constant Buffer "
+					"Table    |\n",
+					user_elements[i].startUserReg,
+					user_elements[i].startUserReg +
+					user_elements[i].userRegCount - 1);
+		}
+		else if (user_elements[i].dataClass == BinaryUserDataUAVTable)
+		{
 			// Add UAV table to debug output
-                        Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  UAV "
-                                	"Table                |\n",
-                                	user_elements[i].startUserReg,
-                               		user_elements[i].startUserReg +
-                                	user_elements[i].userRegCount - 1);
-                }
-                else
-                {
-                        assert(0);
-                }
-        }
-        Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\n");
+			Emulator::isa_debug << misc::fmt("\t| SREG[%2d:%2d] |  UAV "
+					"Table                |\n",
+					user_elements[i].startUserReg,
+					user_elements[i].startUserReg +
+					user_elements[i].userRegCount - 1);
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+	Emulator::isa_debug << misc::fmt("\t-------------------------------------------\n");
+	Emulator::isa_debug << misc::fmt("\n");
 
-        // Initialized constant buffers
+	// Initialized constant buffers
 	Emulator::isa_debug << misc::fmt("Initialized constant buffers:\n");
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
 	Emulator::isa_debug << misc::fmt("\t|  CB   |      Address Range      |\n");
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
 
 	// Iterate through the constant buffers
-        for (int i = 0; i < NDRange::MaxNumConstBufs; i++)
+	for (int i = 0; i < NDRange::MaxNumConstBufs; i++)
 	{
 		// Make sure the constant buffer is valid
 		if (!ndrange->getConstBuffer(i)->valid)
-                	continue;
-	
+			continue;
+
 		// Read a buffer description of the constant buffer
 		video_memory->Read(
 				ndrange->getConstBufferTableAddr() + 
@@ -1229,26 +1286,26 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 				sizeof(buffer_desc), (char *) &buffer_desc);
 
 		// Add constant buffer information to debug output
-        	Emulator::isa_debug << misc::fmt("\t| CB%-2d  | [%10llu:%10llu] |\n",
+		Emulator::isa_debug << misc::fmt("\t| CB%-2d  | [%10llu:%10llu] |\n",
 				i, (long long unsigned int) buffer_desc.base_addr,
 				(long long unsigned int) buffer_desc.base_addr + 
 				(long long unsigned int) buffer_desc.num_records - 1);
 	}
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\n");
+	Emulator::isa_debug << misc::fmt("\n");
 
-        // Initialized UAVs
+	// Initialized UAVs
 	Emulator::isa_debug << misc::fmt("Initialized UAVs:\n");
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
 	Emulator::isa_debug << misc::fmt("\t|  UAV  |      Address Range      |\n");
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
-        
+
 	// Iterate through the UAVs
 	for (int i = 0; i < NDRange::MaxNumUAVs; i++)
 	{
 		// Check that the UAV is valid
 		if (!ndrange->getUAV(i)->valid)
-                	continue;
+			continue;
 
 		// Read a buffer description of the UAV
 		video_memory->Read(
@@ -1258,7 +1315,7 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 				(char *) &buffer_desc);
 
 		// Add UAV information to debug output
-        	Emulator::isa_debug << misc::fmt("\t| UAV%-2d | [%10u:%10u] |\n",
+		Emulator::isa_debug << misc::fmt("\t| UAV%-2d | [%10u:%10u] |\n",
 				i, (unsigned int) buffer_desc.base_addr,
 				(unsigned int) buffer_desc.base_addr + 
 				(unsigned int) buffer_desc.num_records - 1);
@@ -1266,8 +1323,8 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 
 	// Finish debug output
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
-        Emulator::isa_debug << misc::fmt("\n");
-        Emulator::isa_debug << misc::fmt("========================================================\n");
+	Emulator::isa_debug << misc::fmt("\n");
+	Emulator::isa_debug << misc::fmt("========================================================\n");
 }
 
 
@@ -1297,11 +1354,11 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 
 	// Global work size for the {x,y,z} dimensions
 	ndrange->ConstantBufferWrite(0, 0,
-		ndrange->getGlobalSizePtr(0), 4);
+			ndrange->getGlobalSizePtr(0), 4);
 	ndrange->ConstantBufferWrite(0, 4,
-		ndrange->getGlobalSizePtr(1), 4);
+			ndrange->getGlobalSizePtr(1), 4);
 	ndrange->ConstantBufferWrite(0, 8,
-		ndrange->getGlobalSizePtr(2), 4);
+			ndrange->getGlobalSizePtr(2), 4);
 
 	// Number of work dimensions
 	ndrange->ConstantBufferWrite(0, 12, ndrange->getWorkDimPtr(), 4);
@@ -1310,11 +1367,11 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 
 	// Local work size for the {x,y,z} dimensions
 	ndrange->ConstantBufferWrite(0, 16,
-		ndrange->getLocalSizePtr(0), 4);
+			ndrange->getLocalSizePtr(0), 4);
 	ndrange->ConstantBufferWrite(0, 20,
-		ndrange->getLocalSizePtr(1), 4);
+			ndrange->getLocalSizePtr(1), 4);
 	ndrange->ConstantBufferWrite(0, 24,
-		ndrange->getLocalSizePtr(2), 4);
+			ndrange->getLocalSizePtr(2), 4);
 
 	// 0 `
 	ndrange->ConstantBufferWrite(0, 28, &zero, 4);
@@ -1323,11 +1380,11 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 
 	// Global work size {x,y,z} / local work size {x,y,z}
 	ndrange->ConstantBufferWrite(0, 32,
-		ndrange->getGroupCountPtr(0), 4);
+			ndrange->getGroupCountPtr(0), 4);
 	ndrange->ConstantBufferWrite(0, 36,
-		ndrange->getGroupCountPtr(1), 4);
+			ndrange->getGroupCountPtr(1), 4);
 	ndrange->ConstantBufferWrite(0, 40,
-		ndrange->getGroupCountPtr(2), 4);
+			ndrange->getGroupCountPtr(2), 4);
 
 	// 0 
 	ndrange->ConstantBufferWrite(0, 44, &zero, 4);

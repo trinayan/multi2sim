@@ -133,6 +133,8 @@ public:
 		/// or `nullptr` if none is. Argument \a virtual_address must be
 		/// a multiple of the page size.
 		Page *getPage(unsigned virtual_address);
+
+
 	};
 
 private:
@@ -162,11 +164,15 @@ private:
 	// Hash table of pages indexed by their physical address
 	std::unordered_map<unsigned, Page *> physical_pages;
 
+
 public:
 
 	//
 	// Static members
 	//
+	//Read only possible for this mmu
+	unsigned int read_only;
+
 
 	/// Register command-line options
 	static void RegisterOptions();
@@ -241,6 +247,11 @@ public:
 	/// Return `true` if the provided physical address is currently mapped
 	/// to a valid virtual address.
 	bool isValidPhysicalAddress(unsigned physical_address);
+	void MMUCopyTranslation(Mmu *mmu, Space *self_address_space_index,
+						                Space *other_address_space_index, unsigned int vtl_addr,
+						                unsigned int size);
+
+
 };
 
 
