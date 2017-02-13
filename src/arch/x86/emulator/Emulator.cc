@@ -257,9 +257,13 @@ Context *Emulator::getContext(int pid)
 	// Find context
 	for (auto &context : contexts)
 		if (context->getId() == pid)
+		{
+
 			return context.get();
+		}
 	
 	// Not found
+
 	return nullptr;
 }
 

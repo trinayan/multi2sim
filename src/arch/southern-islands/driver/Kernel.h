@@ -141,9 +141,12 @@ public:
 	// TODO - Add param: MMU *gpu_mmu
 	void CreateNDRangeConstantBuffers(NDRange *ndrange);
 	
+	///Setup the NDRange MMU
+	void SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context);
+
 	/// FIXME not implemented yet
 	static void FlushNDRangeBuffers(NDRange *ndrange /*SIGpu *gpu, X86Emu *x86_emu*/);
-	void NDRangeSetupMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context);
+
 };
 
 }  // namespace SI

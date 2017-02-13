@@ -100,7 +100,9 @@ public:
 	static const int ConstBuf0Size = 160;
 	static const int ConstBuf1Size = 1024;
 
+	//FIXME : Why is this size different than 4.2 (danalast)?
 	static const int TotalConstBufSize = ConstBuf0Size + ConstBuf1Size;
+	//static const int TotalConstBufSize = 262144;
 
 private:
 

@@ -22,6 +22,7 @@
 #include <arch/southern-islands/disassembler/Argument.h>
 #include <arch/southern-islands/emulator/Emulator.h>
 #include <arch/x86/emulator/Emulator.h>
+#include <arch/x86/timing/Cpu.h>
 #include <arch/southern-islands/timing/Gpu.h>
 #include <arch/southern-islands/timing/Timing.h>
 #include <arch/x86/emulator/Context.h>
@@ -575,12 +576,12 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 	unsigned int global_size[3];
 	unsigned int local_size[3];
 
+	//If the architecture is fused set the SI emulator global memory
 	if(fused)
 	{
 		emulator->setGlobalMemory(memory);
 
 	}
-
 
 	// Read arguments
 	memory->Read(args_ptr, sizeof(int), (char *) &kernel_id);
@@ -618,8 +619,7 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 
 	//Required for shared virtual memory.
 	//It will set the ndrange address space to be the same as the cpu contexts address space
-	//ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace();
-
+    ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace();
 	debug << misc::fmt("\tcreated ndrange %d\n", ndrange->getId());
 
 	// Initialize from kernel binary encoding dictionary
@@ -781,6 +781,7 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 	// Get emulator instance
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 
+	//Declare these variables
 	int kernel_id;
 	int ndrange_id;
 	unsigned table_ptr;
@@ -804,23 +805,28 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 		throw Error(misc::fmt("%s: invalid kernel ID (%d)", 
 				__FUNCTION__, kernel_id));
 
-	// Adding support for fused memory
+	// When a fused device is present, the driver needs to set up the
+	//addresses of the internal buffers for the GPU as well as the MMU
+	//for both the internal buffers and kernel arguments
 	if(fused)
 	{
-		table_ptr = ( table_ptr  + 15) & 0xFFFFFFF0;
+		//16 extra bytes for alignment
+		table_ptr = (table_ptr  + 15) & 0xFFFFFFF0;
 		cb_ptr =    (cb_ptr + 15) & 0xFFFFFFF0;
-
 		ndrange->setConstBufferTable(table_ptr);
+
+		//The successive tables must be aligned
 		ndrange->setResourceTable ((ndrange->getConstBufferTableAddr()+ ndrange->ConstBufTableSize + 16) & 0xFFFFFFF0) ;
 		ndrange->setUAVTable ((ndrange->getResourceTableAddr() + ndrange->ResourceTableSize + 16) & 0xFFFFFFF0);
-
 		ndrange->setCB0(cb_ptr);
 
-		kernel->NDRangeSetupMMU(ndrange,table_ptr,cb_ptr,context);
-
-
+		//Initialize the GPU MMU with the pages required for nd_range
+		//execution using the same translations as the CPU MMU.
+		kernel->SetupNDRangeMMU(ndrange,table_ptr,cb_ptr,context);
 	}
+
 	// TODO - Add support for timing simulator
+
 
 	// Allocate tables and constant buffers
 	kernel->CreateNDRangeTables(ndrange);
@@ -847,29 +853,16 @@ int Driver::CallNDRangeSetFused(comm::Context *context,
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 	memory->Read(args_ptr, sizeof(bool), (char *) &fused);
 
+	//If there is a fused architecture set the GPU MMU to read only mode
 	if(fused)
 	{
-	  debug << misc::fmt("\tnot fused\n");
+	  debug << misc::fmt("\tfused\n");
       emulator->getMmu()->read_only = 1;
 	}
 	else
 	{
 		debug << misc::fmt("\tnot fused\n");
 	}
-
-
-	// With a fused device, the GPU MMU will be initialized by               
-	// the CPU                                                         
-	// if (driver->fused)                                                       
-	// {                                                                        
-	//	opencl_debug("\tfused\n");                                       
-	//	assert(si_gpu);                                                  
-	//	si_gpu->mmu->read_only = 1;                                      
-	// }                                                                        
-	// else                                                                     
-	//{
-
-
 
 	// Return
 	return 0;
@@ -950,6 +943,7 @@ int Driver::CallNDRangeStart(comm::Context *context,
 		unsigned args_ptr)
 {
 	// Get emulator instance
+
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 
 	// Increment number of ndranges that are running

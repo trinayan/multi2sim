@@ -1,0 +1,491 @@
+samples/hsa/histogram/main.cc:84:  std::unique_ptr<HistBenchmark> benchmark(new HistBenchmark());
+samples/hsa/histogram/main.cc:88:  std::unique_ptr<TimeMeasurement> timer(new TimeMeasurementImpl());
+Binary file samples/hsa/histogram/hist matches
+src/dram/Request.h:44:	std::unique_ptr<Address> address;
+src/dram/Controller.h:100:	std::vector<std::unique_ptr<Channel>> channels;
+src/dram/Action.cc:33:std::unique_ptr<Actions> Actions::instance;
+src/dram/Action.h:83:	static std::unique_ptr<Actions> instance;
+src/dram/Channel.h:55:	std::vector<std::unique_ptr<Rank>> ranks;
+src/dram/Channel.h:59:	std::unique_ptr<Scheduler> scheduler;
+src/dram/Channel.cc:59:		scheduler = std::unique_ptr<Scheduler>(
+src/dram/Channel.cc:65:		scheduler = std::unique_ptr<Scheduler>(
+src/dram/System.h:60:	static std::unique_ptr<System> instance;
+src/dram/System.h:67:	std::vector<std::unique_ptr<Controller>> controllers;
+src/dram/Rank.h:45:	std::vector<std::unique_ptr<Bank>> banks;
+src/dram/System.cc:65:std::unique_ptr<System> System::instance;
+src/memory/Manager.h:78:		std::map<unsigned, std::unique_ptr<Chunk>>::iterator it_chunks;
+src/memory/Manager.h:118:		std::map<unsigned, std::unique_ptr<Chunk>>::iterator
+src/memory/Manager.h:123:				std::unique_ptr<Chunk>>::iterator it)
+src/memory/Manager.h:167:	std::map<unsigned, std::unique_ptr<Chunk>> chunks;
+src/memory/Directory.h:103:	std::unique_ptr<Entry[]> entries;
+src/memory/Directory.h:106:	std::unique_ptr<Lock[]> locks;
+src/memory/System.h:68:	static std::unique_ptr<System> instance;
+src/memory/System.h:233:	std::list<std::unique_ptr<net::Network>> networks;
+src/memory/System.h:239:	std::list<std::unique_ptr<Module>> modules;
+src/memory/Memory.h:84:		std::unique_ptr<char[]> data;
+src/memory/Memory.h:132:	std::unordered_map<unsigned, std::unique_ptr<Page>> pages;
+src/memory/Mmu.h:159:	std::vector<std::unique_ptr<Space>> spaces;
+src/memory/Mmu.h:162:	std::vector<std::unique_ptr<Page>> pages;
+src/memory/Manager.cc:402:			std::unique_ptr<Chunk>(hole)));
+src/memory/Manager.cc:438:			std::unique_ptr<Chunk>(pointer)));
+src/memory/System.cc:48:std::unique_ptr<System> System::instance;
+src/memory/Module.h:182:	std::unique_ptr<Directory> directory;
+src/memory/Module.h:246:	std::unique_ptr<Cache> cache;
+src/memory/Cache.h:162:	std::unique_ptr<Set[]> sets;
+src/memory/Cache.h:165:	std::unique_ptr<Block[]> blocks;
+src/lib/cpp/ELFWriter.h:283:	std::vector<std::unique_ptr<Symbol>> symbols;
+src/lib/cpp/ELFWriter.h:340:	std::vector<std::unique_ptr<Section>> sections;
+src/lib/cpp/ELFWriter.h:341:	std::vector<std::unique_ptr<Segment>> segments;
+src/lib/cpp/ELFWriter.h:342:	std::vector<std::unique_ptr<SymbolTable>> symbol_tables;
+src/lib/cpp/ELFWriter.h:343:	std::vector<std::unique_ptr<Buffer>> buffers;
+src/lib/cpp/Environment.h:47:	static std::unique_ptr<Environment> instance;
+src/lib/cpp/Graph.h:143:	std::vector<std::unique_ptr<Vertex>> vertices;
+src/lib/cpp/Graph.h:146:	std::vector<std::unique_ptr<Edge>> edges;
+src/lib/cpp/Graph.h:183:	void addVertex(std::unique_ptr<Vertex> &&vertex)
+src/lib/cpp/Graph.h:206:	void addEdge(std::unique_ptr<Edge> &&edge,
+src/lib/cpp/Misc.h:225:template<typename T, typename... Args> std::unique_ptr<T>
+src/lib/cpp/Misc.h:228:	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+src/lib/cpp/Misc.h:236:///    std::unique_ptr<int[]> A;
+src/lib/cpp/Misc.h:239:template<typename T> std::unique_ptr<T[]>new_unique_array(int size)
+src/lib/cpp/Misc.h:241:	return std::unique_ptr<T[]>(new T[size]());
+src/lib/cpp/ELFWriter.cc:214:	symbols.push_back(std::unique_ptr<Symbol>(new Symbol(name)));
+src/lib/cpp/ELFWriter.cc:271:	buffers.push_back(std::unique_ptr<Buffer>(new Buffer(this,
+src/lib/cpp/ELFWriter.cc:279:	segments.push_back(std::unique_ptr<Segment>(new Segment(this, name,
+src/lib/cpp/ELFWriter.cc:288:	sections.push_back(std::unique_ptr<Section>(new Section(this, name,
+src/lib/cpp/ELFWriter.cc:308:	symbol_tables.push_back(std::unique_ptr<SymbolTable>(new
+src/lib/cpp/CommandLine.h:330:	std::vector<std::unique_ptr<CommandLineOption>> options;
+src/lib/cpp/CommandLine.h:336:	std::vector<std::unique_ptr<CommandLineCategory>> categories;
+src/lib/cpp/CommandLine.h:342:	void Register(std::unique_ptr<CommandLineOption> &&option);
+src/lib/cpp/CommandLine.h:354:	static std::unique_ptr<CommandLine> instance;
+src/lib/cpp/Environment.cc:31:std::unique_ptr<Environment> Environment::instance;
+src/lib/cpp/Bitmap.h:36:	std::unique_ptr<size_t[]> data;
+src/lib/cpp/Graph.cc:25:void Graph::addEdge(std::unique_ptr<Edge> &&edge,
+src/lib/cpp/Graph.cc:41:			[&](std::unique_ptr<Edge> const& 
+src/lib/cpp/Graph.cc:92:			[&](std::unique_ptr<Edge> const& 
+src/lib/cpp/Graph.cc:605:					[&](std::unique_ptr<Vertex> const& 
+src/lib/cpp/ELFReader.h:312:	static bool Compare(const std::unique_ptr<Symbol> &a,
+src/lib/cpp/ELFReader.h:313:			const std::unique_ptr<Symbol> &b);
+src/lib/cpp/ELFReader.h:404:	std::unique_ptr<char[]> buffer;
+src/lib/cpp/ELFReader.h:419:	std::vector<std::unique_ptr<Section>> sections;
+src/lib/cpp/ELFReader.h:422:	std::vector<std::unique_ptr<ProgramHeader>> program_headers;
+src/lib/cpp/ELFReader.h:425:	std::vector<std::unique_ptr<Symbol>> symbols;
+src/lib/cpp/ELFReader.h:486:	const std::vector<std::unique_ptr<Section>> &getSections() const
+src/lib/cpp/ELFReader.h:505:	const std::vector<std::unique_ptr<ProgramHeader>>
+src/lib/cpp/ELFReader.h:530:	const std::vector<std::unique_ptr<Symbol>> &getSymbols() const
+src/lib/cpp/ELFReader.cc:149:bool Symbol::Compare(const std::unique_ptr<Symbol>& a,
+src/lib/cpp/ELFReader.cc:150:		const std::unique_ptr<Symbol>& b)
+src/lib/cpp/CommandLine.cc:176:std::unique_ptr<CommandLine> CommandLine::instance;
+src/lib/cpp/CommandLine.cc:211:void CommandLine::Register(std::unique_ptr<CommandLineOption> &&option)
+src/lib/cpp/Error.cc:76:	const std::unique_ptr<char, decltype(&std::free)> demangled(
+src/lib/cpp/Error.cc:88:	const std::unique_ptr<char *, decltype(&std::free)> symbols(
+src/lib/esim/Trace.cc:33:std::unique_ptr<TraceSystem> TraceSystem::instance;
+src/lib/esim/Trace.h:35:	static std::unique_ptr<TraceSystem> instance;
+src/lib/esim/Engine.cc:33:std::unique_ptr<Engine> Engine::instance;
+src/lib/esim/Engine.h:67:	static std::unique_ptr<Engine> instance;
+src/network/RoutingTable.h:86:	std::vector<std::unique_ptr<Entry>> entries;
+src/network/Message.h:52:	std::vector<std::unique_ptr<Packet>> packets;
+src/network/System.h:95:	static std::unique_ptr<System> instance;
+src/network/System.h:141:	std::vector<std::unique_ptr<Network>> networks;
+src/network/Graph.cc:45://misc::cast<std::unique_ptr<misc::Vertex>>(vertex));
+src/network/RoutingTable.cc:185:	std::unique_ptr<misc::Graph> graph = misc::new_unique<misc::Graph>();
+src/network/Node.h:62:	std::vector<std::unique_ptr<Buffer>> input_buffers;
+src/network/Node.h:65:	std::vector<std::unique_ptr<Buffer>> output_buffers;
+src/network/Network.h:55:	std::unordered_map<long long, std::unique_ptr<Message>> message_table;
+src/network/Network.h:58:	std::vector<std::unique_ptr<Node>> nodes;
+src/network/Network.h:64:	std::vector<std::unique_ptr<Connection>> connections;
+src/network/Network.h:138:	std::unique_ptr<Graph> graph;
+src/network/Bus.h:103:	std::vector<std::unique_ptr<Lane>> lanes;
+src/network/System.cc:63:std::unique_ptr<System> System::instance;
+src/arch/common/Driver.cc:32:std::unique_ptr<DriverPool> DriverPool::instance;
+src/arch/common/Arch.cc:36:std::unique_ptr<ArchPool> ArchPool::instance;
+src/arch/common/Arch.h:146:	static std::unique_ptr<ArchPool> instance;
+src/arch/common/Arch.h:149:	std::list<std::unique_ptr<Arch>> arch_list;
+src/arch/common/Arch.h:233:	std::list<std::unique_ptr<Arch>>::iterator begin()
+src/arch/common/Arch.h:239:	std::list<std::unique_ptr<Arch>>::iterator end()
+src/arch/common/Runtime.h:103:	static std::unique_ptr<RuntimePool> instance;
+src/arch/common/Runtime.h:106:	std::list<std::unique_ptr<Runtime>> runtimes;
+src/arch/common/Runtime.cc:51:std::unique_ptr<RuntimePool> RuntimePool::instance;
+src/arch/common/FileTable.h:144:	std::vector<std::unique_ptr<FileDescriptor>> descriptors;
+src/arch/common/CallStack.h:131:	std::list<std::unique_ptr<ELFReader::File>> elf_file_list;
+src/arch/common/Driver.h:101:	static std::unique_ptr<DriverPool> instance;
+src/arch/hsa/disassembler/BrigFile.cc:138:std::unique_ptr<BrigCodeEntry> BrigFile::getCodeEntryByOffset(
+src/arch/hsa/disassembler/BrigFile.cc:142:	std::unique_ptr<BrigCodeEntry> entry =
+src/arch/hsa/disassembler/BrigFile.cc:151:	std::unique_ptr<BrigDataEntry> data_entry =
+src/arch/hsa/disassembler/BrigFile.cc:157:std::unique_ptr<BrigDataEntry> BrigFile::getDataEntryByOffset(
+src/arch/hsa/disassembler/BrigFile.cc:161:	std::unique_ptr<BrigDataEntry> data_entry =
+src/arch/hsa/disassembler/BrigFile.cc:167:std::unique_ptr<BrigOperandEntry> BrigFile::getOperandByOffset(
+src/arch/hsa/disassembler/BrigFile.cc:171:	std::unique_ptr<BrigOperandEntry> entry = operand_section->
+src/arch/hsa/disassembler/BrigSection.h:71:	std::unique_ptr<T> getFirstEntry() const
+src/arch/hsa/disassembler/BrigSection.h:81:	std::unique_ptr<T> getEntryByOffset(unsigned int offset) const
+src/arch/hsa/disassembler/BrigSection.h:86:			return std::unique_ptr<T>(nullptr);
+src/arch/hsa/disassembler/BrigSection.h:89:			return std::unique_ptr<T>(nullptr);
+src/arch/hsa/disassembler/Disassembler.h:38:	static std::unique_ptr<Disassembler> instance;
+src/arch/hsa/disassembler/BrigOperandEntry.cc:224:std::unique_ptr<BrigCodeEntry> BrigOperandEntry::getSymbol() const
+src/arch/hsa/disassembler/BrigOperandEntry.cc:237:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/disassembler/BrigOperandEntry.cc:241:std::unique_ptr<BrigOperandEntry> BrigOperandEntry::getReg() const
+src/arch/hsa/disassembler/BrigOperandEntry.cc:254:	return std::unique_ptr<BrigOperandEntry>(nullptr);
+src/arch/hsa/disassembler/BrigOperandEntry.cc:340:std::unique_ptr<BrigCodeEntry> BrigOperandEntry::getRef() const
+src/arch/hsa/disassembler/BrigOperandEntry.cc:353:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/disassembler/BrigOperandEntry.cc:357:std::unique_ptr<BrigDataEntry> BrigOperandEntry::getElements() const
+src/arch/hsa/disassembler/BrigOperandEntry.cc:380:	return std::unique_ptr<BrigDataEntry>(nullptr);
+src/arch/hsa/disassembler/BrigOperandEntry.cc:391:std::unique_ptr<BrigCodeEntry> BrigOperandEntry::getElement(unsigned int index) const
+src/arch/hsa/disassembler/BrigOperandEntry.cc:403:std::unique_ptr<BrigOperandEntry> BrigOperandEntry::getOperandElement(unsigned int index) const
+src/arch/hsa/disassembler/BrigCodeEntry.h:130:	void DumpArguments(std::unique_ptr<BrigCodeEntry> firstArg,
+src/arch/hsa/disassembler/BrigCodeEntry.h:134:	void DumpBody(std::unique_ptr<BrigCodeEntry> start,
+src/arch/hsa/disassembler/BrigCodeEntry.h:135:			std::unique_ptr<BrigCodeEntry> end,
+src/arch/hsa/disassembler/BrigCodeEntry.h:148:	std::unique_ptr<BrigCodeEntry> Next() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:151:	std::unique_ptr<BrigCodeEntry> NextTopLevelEntry() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:226:	std::unique_ptr<BrigCodeEntry> getFirstInArg() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:229:	std::unique_ptr<BrigCodeEntry> getFirstCodeBlockEntry() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:232:	std::unique_ptr<BrigCodeEntry> getNextModuleEntry() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:244:	std::unique_ptr<BrigDataEntry> getOperands() const;
+src/arch/hsa/disassembler/BrigCodeEntry.h:250:	std::unique_ptr<BrigOperandEntry> getOperand(unsigned char index) const;
+src/arch/hsa/disassembler/BrigFile.h:48:	std::unique_ptr<char> buffer;
+src/arch/hsa/disassembler/BrigFile.h:51:	std::vector<std::unique_ptr<BrigSection>> sections;
+src/arch/hsa/disassembler/BrigFile.h:94:	std::unique_ptr<BrigCodeEntry> getCodeEntryByOffset(
+src/arch/hsa/disassembler/BrigFile.h:102:	virtual std::unique_ptr<BrigDataEntry> getDataEntryByOffset(
+src/arch/hsa/disassembler/BrigFile.h:106:	virtual std::unique_ptr<BrigOperandEntry> getOperandByOffset(
+src/arch/hsa/disassembler/Disassembler.cc:34:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:34:std::unique_ptr<BrigCodeEntry> BrigCodeEntry::Next() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:37:	std::unique_ptr<BrigCodeEntry> next_entry =
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:43:std::unique_ptr<BrigCodeEntry> BrigCodeEntry::NextTopLevelEntry() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:563:std::unique_ptr<BrigCodeEntry> BrigCodeEntry::getFirstInArg() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:581:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:585:std::unique_ptr<BrigCodeEntry> BrigCodeEntry::getFirstCodeBlockEntry() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:603:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:607:std::unique_ptr<BrigCodeEntry> BrigCodeEntry::getNextModuleEntry() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:679:std::unique_ptr<BrigDataEntry> BrigCodeEntry::getOperands() const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:699:	return std::unique_ptr<BrigDataEntry>(nullptr);
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:720:std::unique_ptr<BrigOperandEntry> BrigCodeEntry::getOperand(unsigned char index) const
+src/arch/hsa/disassembler/BrigCodeEntryGetter.cc:724:		std::unique_ptr<BrigDataEntry> operands = getOperands();
+src/arch/hsa/disassembler/BrigCodeEntryDump.cc:666:void BrigCodeEntry::DumpArguments(std::unique_ptr<BrigCodeEntry> arg, 
+src/arch/hsa/disassembler/BrigCodeEntryDump.cc:693:void BrigCodeEntry::DumpBody(std::unique_ptr<BrigCodeEntry> start, 
+src/arch/hsa/disassembler/BrigCodeEntryDump.cc:694:		std::unique_ptr<BrigCodeEntry> end,
+src/arch/hsa/disassembler/BrigCodeEntryDump.cc:700:	std::unique_ptr<BrigCodeEntry> entry = std::move(start);
+src/arch/hsa/disassembler/BrigCodeEntryDump.cc:731:		std::unique_ptr<BrigOperandEntry> operand = getOperand(i);
+src/arch/hsa/disassembler/BrigOperandEntry.h:87:	std::unique_ptr<BrigCodeEntry> getSymbol() const;
+src/arch/hsa/disassembler/BrigOperandEntry.h:90:	std::unique_ptr<BrigOperandEntry> getReg() const;
+src/arch/hsa/disassembler/BrigOperandEntry.h:108:	std::unique_ptr<BrigCodeEntry> getRef() const;
+src/arch/hsa/disassembler/BrigOperandEntry.h:110:	std::unique_ptr<BrigDataEntry> getElements() const;
+src/arch/hsa/disassembler/BrigOperandEntry.h:116:	std::unique_ptr<BrigCodeEntry> getElement(unsigned int index) const;
+src/arch/hsa/disassembler/BrigOperandEntry.h:120:	std::unique_ptr<BrigOperandEntry> getOperandElement(unsigned int index) const;
+src/arch/hsa/driver/Driver.cc:70:std::unique_ptr<Driver> Driver::instance;
+src/arch/hsa/driver/Driver.cc:116:std::unique_ptr<DriverCallHandler> Driver::GetDriverCallHandler(int code)
+src/arch/hsa/driver/Driver.cc:128:		return std::unique_ptr<DriverCallHandler>(nullptr);
+src/arch/hsa/driver/HsaExecutable.h:44:	std::vector<std::unique_ptr<BrigFile>> modules;
+src/arch/hsa/driver/HsaExecutable.h:47:	std::map<std::string, std::unique_ptr<Function>> function_table;
+src/arch/hsa/driver/HsaExecutable.h:56:	void parseFunction(BrigFile *file, std::unique_ptr<BrigCodeEntry> dir);
+src/arch/hsa/driver/HsaExecutable.h:69:			std::unique_ptr<BrigCodeEntry> first_entry,
+src/arch/hsa/driver/HsaExecutable.h:70:			std::unique_ptr<BrigCodeEntry> next_module_entry,
+src/arch/hsa/driver/HsaExecutable.h:90:	std::unique_ptr<BrigCodeEntry> loadArguments(
+src/arch/hsa/driver/HsaExecutable.h:93:			std::unique_ptr<BrigCodeEntry> entry,
+src/arch/hsa/driver/SignalManager.h:38:	std::unordered_map<uint64_t, std::unique_ptr<Signal>> signals;
+src/arch/hsa/driver/HsaProgram.h:38:	std::vector<std::unique_ptr<BrigFile>> modules;
+src/arch/hsa/driver/HsaProgram.h:65:	const std::vector<std::unique_ptr<BrigFile>> *getModules() const 
+src/arch/hsa/driver/HsaExecutable.cc:46:	const std::vector<std::unique_ptr<BrigFile>> *modules
+src/arch/hsa/driver/HsaExecutable.cc:78:		std::unique_ptr<BrigCodeEntry> first_entry,
+src/arch/hsa/driver/HsaExecutable.cc:79:		std::unique_ptr<BrigCodeEntry> next_module_entry,
+src/arch/hsa/driver/HsaExecutable.cc:143:std::unique_ptr<BrigCodeEntry> HsaExecutable::loadArguments(
+src/arch/hsa/driver/HsaExecutable.cc:146:		std::unique_ptr<BrigCodeEntry> entry,
+src/arch/hsa/driver/HsaExecutable.cc:173:		std::unique_ptr<BrigCodeEntry> entry)
+src/arch/hsa/driver/Driver.h:48:	std::unique_ptr<SignalManager> signal_manager;
+src/arch/hsa/driver/Driver.h:54:	static std::unique_ptr<Driver> instance;
+src/arch/hsa/driver/Driver.h:123:	std::unique_ptr<DriverCallHandler> GetDriverCallHandler(int code);
+src/arch/hsa/emulator/Grid.h:78:	std::unique_ptr<SegmentManager> kernarg_segment;
+src/arch/hsa/emulator/Grid.h:81:	std::map<std::string, std::unique_ptr<Variable>> kernel_arguments;
+src/arch/hsa/emulator/Grid.h:84:	std::map<unsigned int, std::unique_ptr<WorkGroup>> workgroups;
+src/arch/hsa/emulator/StackFrame.h:44:	std::unique_ptr<BrigCodeEntry> pc;
+src/arch/hsa/emulator/StackFrame.h:47:	std::map<std::string, std::unique_ptr<Variable>> function_arguments;
+src/arch/hsa/emulator/StackFrame.h:56:	std::map<std::string, std::unique_ptr<Variable>> argument_scope;
+src/arch/hsa/emulator/StackFrame.h:59: 	std::unique_ptr<SegmentManager> argument_segment;
+src/arch/hsa/emulator/StackFrame.h:62:	std::map<std::string, std::unique_ptr<Variable>> variables;
+src/arch/hsa/emulator/StackFrame.h:65:	std::unique_ptr<char[]> register_storage;
+src/arch/hsa/emulator/StackFrame.h:100:	void setPc(std::unique_ptr<BrigCodeEntry> pc);
+src/arch/hsa/emulator/StackFrame.h:201:	void addFunctionArguments(std::unique_ptr<Variable> argument)
+src/arch/hsa/emulator/StackFrame.h:208:	void addVariable(std::unique_ptr<Variable> variable)
+src/arch/hsa/emulator/WorkGroup.cc:110:void WorkGroup::addWorkItem(std::unique_ptr<WorkItem> work_item)
+src/arch/hsa/emulator/Emulator.h:71:	static std::unique_ptr<Emulator> instance;
+src/arch/hsa/emulator/Emulator.h:78:	std::map<unsigned long long, std::unique_ptr<Component>> components;
+src/arch/hsa/emulator/Emulator.h:94:	std::unique_ptr<mem::Manager> manager;
+src/arch/hsa/emulator/StackFrame.cc:74:void StackFrame::setPc(std::unique_ptr<BrigCodeEntry> pc)
+src/arch/hsa/emulator/Component.h:64:	std::list<std::unique_ptr<Grid>> grids;
+src/arch/hsa/emulator/Component.h:67:	std::list<std::unique_ptr<AQLQueue>> queues;
+src/arch/hsa/emulator/Component.h:78:	static std::unique_ptr<Component> getDefaultCPUComponent(
+src/arch/hsa/emulator/Component.h:82:	static std::unique_ptr<Component> getDefaultGPUComponent(
+src/arch/hsa/emulator/Component.h:86:	void addQueue(std::unique_ptr<AQLQueue> queue);
+src/arch/hsa/emulator/Wavefront.cc:72:void Wavefront::addWorkItem(std::unique_ptr<WorkItem> work_item)
+src/arch/hsa/emulator/HsaInstructionWorker.h:48:	std::unique_ptr<OperandValueRetriever> operand_value_retriever;
+src/arch/hsa/emulator/HsaInstructionWorker.h:51:	std::unique_ptr<OperandValueWriter> operand_value_writer;
+src/arch/hsa/emulator/Emulator.cc:55:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/hsa/emulator/Function.cc:43:std::unique_ptr<BrigCodeEntry> Function::getFirstEntry() const
+src/arch/hsa/emulator/Function.cc:49:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/emulator/Function.cc:53:std::unique_ptr<BrigCodeEntry> Function::getLastEntry() const
+src/arch/hsa/emulator/Function.cc:59:	return std::unique_ptr<BrigCodeEntry>(nullptr);
+src/arch/hsa/emulator/Function.cc:63:void Function::addArgument(std::unique_ptr<Variable> argument)
+src/arch/hsa/emulator/Function.cc:67:	std::map<std::string, std::unique_ptr<Variable>>::iterator it
+src/arch/hsa/emulator/Function.cc:274:	std::map<std::string, std::unique_ptr<Variable>>::const_iterator it;
+src/arch/hsa/emulator/Component.cc:26:std::unique_ptr<Component> Component::getDefaultCPUComponent(unsigned long long handler)
+src/arch/hsa/emulator/Component.cc:43:std::unique_ptr<Component> Component::getDefaultGPUComponent(unsigned long long handler)
+src/arch/hsa/emulator/Component.cc:60:void Component::addQueue(std::unique_ptr<AQLQueue> queue)
+src/arch/hsa/emulator/WorkGroup.h:57:	std::unique_ptr<SegmentManager> group_segment;
+src/arch/hsa/emulator/WorkGroup.h:62:	std::map<unsigned int, std::unique_ptr<Wavefront>> wavefronts;
+src/arch/hsa/emulator/WorkGroup.h:108:	void addWorkItem(std::unique_ptr<WorkItem> work_item);
+src/arch/hsa/emulator/Wavefront.h:43:	std::list<std::unique_ptr<WorkItem>> work_items;
+src/arch/hsa/emulator/Wavefront.h:71:	void addWorkItem(std::unique_ptr<WorkItem> work_item);
+src/arch/hsa/emulator/WorkItem.cc:526:std::unique_ptr<HsaInstructionWorker> WorkItem::getInstructionWorker(
+src/arch/hsa/emulator/Function.h:51:	std::unique_ptr<BrigCodeEntry> first_entry;
+src/arch/hsa/emulator/Function.h:55:	std::unique_ptr<BrigCodeEntry> last_entry;
+src/arch/hsa/emulator/Function.h:58:	std::unique_ptr<BrigCodeEntry> function_directive;
+src/arch/hsa/emulator/Function.h:78:	std::map<std::string, std::unique_ptr<Variable>> arguments;
+src/arch/hsa/emulator/Function.h:109:	void setFirstEntry(std::unique_ptr<BrigCodeEntry> first_entry)
+src/arch/hsa/emulator/Function.h:115:	std::unique_ptr<BrigCodeEntry> getFirstEntry() const;
+src/arch/hsa/emulator/Function.h:118:	void setLastEntry(std::unique_ptr<BrigCodeEntry> last_entry)
+src/arch/hsa/emulator/Function.h:124:	std::unique_ptr<BrigCodeEntry> getLastEntry() const;
+src/arch/hsa/emulator/Function.h:127:	void setFunctionDirective(std::unique_ptr<BrigCodeEntry> directive)
+src/arch/hsa/emulator/Function.h:139:	void addArgument(std::unique_ptr<Variable> argument);
+src/arch/hsa/emulator/WorkItem.h:80: 	std::unique_ptr<SegmentManager> private_segment;
+src/arch/hsa/emulator/WorkItem.h:99: 	std::vector<std::unique_ptr<StackFrame>> stack;
+src/arch/hsa/emulator/WorkItem.h:105:	std::unique_ptr<HsaInstructionWorker> getInstructionWorker(
+src/arch/hsa/emulator/WorkItem.h:168: 	void PushStackFrame(std::unique_ptr<StackFrame> stack_frame)
+src/arch/kepler/disassembler/Disassembler.h:119:	static std::unique_ptr<Disassembler> instance;
+src/arch/kepler/disassembler/Disassembler.cc:125:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/kepler/driver/Driver.cc:54:std::unique_ptr<Driver> Driver::instance;
+src/arch/kepler/driver/DriverCall.cc:169:	std::unique_ptr<char> buffer(new char[size]);
+src/arch/kepler/driver/DriverCall.cc:219:	std::unique_ptr<char> buffer(new char[size]);
+src/arch/kepler/driver/Function.h:57:	std::vector<std::unique_ptr<Argument>> arguments;
+src/arch/kepler/driver/Driver.h:46:	static std::unique_ptr<Driver> instance;
+src/arch/kepler/driver/Driver.h:102:	std::vector<std::unique_ptr<Module>> modules;
+src/arch/kepler/driver/Module.h:44:	std::vector<std::unique_ptr<Function>> functions;
+src/arch/kepler/emulator/Thread.h:97:	std::unique_ptr<mem::Memory> local_memory;
+src/arch/kepler/emulator/Grid.h:78:	std::list<std::unique_ptr<ThreadBlock>> pending_thread_blocks;
+src/arch/kepler/emulator/Grid.h:79:	std::list<std::unique_ptr<ThreadBlock>> running_thread_blocks;
+src/arch/kepler/emulator/Grid.h:80:	std::list<std::unique_ptr<ThreadBlock>> finished_thread_blocks;
+src/arch/kepler/emulator/Grid.h:170:	std::list<std::unique_ptr<ThreadBlock>>::iterator
+src/arch/kepler/emulator/Grid.h:195:	void PushFinishedThreadBlock(std::unique_ptr<ThreadBlock> threadblock);
+src/arch/kepler/emulator/ReturnAddressStack.h:46:                std::unique_ptr<SyncStack> sync_stack;
+src/arch/kepler/emulator/ReturnAddressStack.h:51:                		std::unique_ptr<SyncStack>& ss, unsigned counter)
+src/arch/kepler/emulator/ReturnAddressStack.h:67:                std::unique_ptr<SyncStack>* getSyncStack() { return &sync_stack; }
+src/arch/kepler/emulator/ReturnAddressStack.h:85:        std::list<std::unique_ptr<ReturnAddressStackEntry>> ret_stack;
+src/arch/kepler/emulator/ReturnAddressStack.h:91:        std::unique_ptr<SyncStack>* getTopSyncStack() const
+src/arch/kepler/emulator/ReturnAddressStack.h:115:        void push(unsigned ret_addr, unsigned am, std::unique_ptr<SyncStack>& ss);
+src/arch/kepler/emulator/Warp.cc:67:	return_stack = std::unique_ptr<ReturnAddressStack>(new ReturnAddressStack());
+src/arch/kepler/emulator/Warp.cc:69:	std::unique_ptr<SyncStack> sync_stack(new SyncStack(thread_count));
+src/arch/kepler/emulator/Emulator.h:56:	static std::unique_ptr<Emulator> instance;
+src/arch/kepler/emulator/Emulator.h:62:	std::vector<std::unique_ptr<Grid>> grids;
+src/arch/kepler/emulator/Emulator.h:70:	std::unique_ptr<mem::Memory> global_memory;
+src/arch/kepler/emulator/Emulator.h:71:	std::unique_ptr<mem::Memory> constant_memory;
+src/arch/kepler/emulator/Emulator.h:72:	std::unique_ptr<mem::Memory> shared_memory;
+src/arch/kepler/emulator/SyncStack.cc:60:	std::list<std::list<std::unique_ptr<SyncStackEntry>>::iterator> no_bra;
+src/arch/kepler/emulator/SyncStack.cc:66:	std::unique_ptr<SyncStackEntry> temp(entry);
+src/arch/kepler/emulator/Emulator.cc:58:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/kepler/emulator/Emulator.cc:118:	std::unique_ptr<ThreadBlock> thread_block;
+src/arch/kepler/emulator/Grid.cc:92:	//this->pending_thread_blocks = new std::list<std::unique_ptr<ThreadBlock>>;
+src/arch/kepler/emulator/Grid.cc:95:		std::unique_ptr<ThreadBlock> tb;
+src/arch/kepler/emulator/Grid.cc:115:		(std::unique_ptr<ThreadBlock>(new ThreadBlock(this, thread_block_id,
+src/arch/kepler/emulator/Grid.cc:120:void Grid::PushFinishedThreadBlock(std::unique_ptr<ThreadBlock> threadblock)
+src/arch/kepler/emulator/ReturnAddressStack.cc:27:void ReturnAddressStack::push(unsigned address, unsigned am, std::unique_ptr<SyncStack>& ss)
+src/arch/kepler/emulator/ReturnAddressStack.cc:31:	std::unique_ptr<ReturnAddressStackEntry> temp(&temp_entry);
+src/arch/kepler/emulator/ReturnAddressStack.cc:34:	std::unique_ptr<ReturnAddressStackEntry> temp(new ReturnAddressStackEntry
+src/arch/kepler/emulator/ThreadBlock.h:77:	std::vector<std::unique_ptr<Warp>> warps;
+src/arch/kepler/emulator/ThreadBlock.h:80:	std::vector<std::unique_ptr<Thread>> threads;
+src/arch/kepler/emulator/ThreadBlock.h:91:	std::unique_ptr<mem::Memory> shared_memory;
+src/arch/kepler/emulator/ThreadBlock.h:214:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsBegin() {
+src/arch/kepler/emulator/ThreadBlock.h:219:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsEnd() {
+src/arch/kepler/emulator/ThreadBlock.h:232:	std::vector<std::unique_ptr<Warp>>::iterator WarpsBegin() {
+src/arch/kepler/emulator/ThreadBlock.h:237:	std::vector<std::unique_ptr<Warp>>::iterator WarpsEnd() {
+src/arch/kepler/emulator/Warp.h:76:	std::unique_ptr<WarpData> data;
+src/arch/kepler/emulator/Warp.h:100:	std::unique_ptr<ReturnAddressStack> return_stack;
+src/arch/kepler/emulator/Warp.h:103:	// std::unique_ptr<SyncStack> sync_stack;
+src/arch/kepler/emulator/Warp.h:134:	std::vector<std::unique_ptr<Thread>>::iterator threads_begin;
+src/arch/kepler/emulator/Warp.h:141:	std::vector<std::unique_ptr<Thread>>::iterator threads_end;
+src/arch/kepler/emulator/Warp.h:180:	std::unique_ptr<SyncStack>* getSyncStack() const
+src/arch/kepler/emulator/Warp.h:186:	std::unique_ptr<ReturnAddressStack>* getReturnAddressStack()
+src/arch/kepler/emulator/Warp.h:211:	void setThreadBegin(std::vector<std::unique_ptr<Thread>>::iterator value)
+src/arch/kepler/emulator/Warp.h:215:	void setThreadEnd(std::vector<std::unique_ptr<Thread>>::iterator value)
+src/arch/kepler/emulator/Warp.h:271:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsBegin() {
+src/arch/kepler/emulator/Warp.h:277:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsEnd() {
+src/arch/kepler/emulator/ThreadBlock.cc:54:		warps.push_back(std::unique_ptr<Warp>(new
+src/arch/kepler/emulator/ThreadBlock.cc:60:		threads.push_back(std::unique_ptr<Thread>(new
+src/arch/kepler/emulator/Warp.h.bakup:100:	std::unique_ptr<WarpData> data;
+src/arch/kepler/emulator/Warp.h.bakup:159:	std::vector<std::unique_ptr<Thread>>::iterator threads_begin;
+src/arch/kepler/emulator/Warp.h.bakup:166:	std::vector<std::unique_ptr<Thread>>::iterator threads_end;
+src/arch/kepler/emulator/Warp.h.bakup:314:	void setThreadBegin(std::vector<std::unique_ptr<Thread>>::iterator value)
+src/arch/kepler/emulator/Warp.h.bakup:318:	void setThreadEnd(std::vector<std::unique_ptr<Thread>>::iterator value)
+src/arch/kepler/emulator/Warp.h.bakup:434:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsBegin() {
+src/arch/kepler/emulator/Warp.h.bakup:440:	std::vector<std::unique_ptr<Thread>>::iterator ThreadsEnd() {
+src/arch/kepler/emulator/SyncStack.h:117:        std::list<std::unique_ptr<SyncStackEntry>> sync_stack;
+src/arch/kepler/emulator/SyncStack.h:123:        std::unordered_multimap<unsigned, std::list<std::unique_ptr<SyncStackEntry>>::iterator> hash_table;
+src/arch/kepler/emulator/ThreadIsa.cc:5006:			std::unique_ptr<SyncStack> sync_stack(
+src/arch/southern-islands/disassembler/Disassembler.h:40:	static std::unique_ptr<Disassembler> instance;  
+src/arch/southern-islands/disassembler/Argument.h:294:	std::unique_ptr<char[]> value;
+src/arch/southern-islands/disassembler/Argument.h:354:	void setValue(std::unique_ptr<char[]> &&value) { this->value = std::move(value); }
+src/arch/southern-islands/disassembler/Disassembler.cc:36:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/southern-islands/timing/SimdUnit.h:36:	std::deque<std::unique_ptr<Uop>> decode_buffer;
+src/arch/southern-islands/timing/SimdUnit.h:39:	std::deque<std::unique_ptr<Uop>> exec_buffer;
+src/arch/southern-islands/timing/SimdUnit.h:107:	void Issue(std::unique_ptr<Uop> uop) override;
+src/arch/southern-islands/timing/FetchBuffer.h:46:	std::list<std::unique_ptr<Uop>> buffer;
+src/arch/southern-islands/timing/FetchBuffer.h:65:	void addUop(std::unique_ptr<SI::Uop> uop)
+src/arch/southern-islands/timing/FetchBuffer.h:71:	std::list<std::unique_ptr<Uop>>::iterator begin()
+src/arch/southern-islands/timing/FetchBuffer.h:77:	std::list<std::unique_ptr<Uop>>::iterator end()
+src/arch/southern-islands/timing/FetchBuffer.h:83:	void Remove(std::list<std::unique_ptr<Uop>>::iterator it);
+src/arch/southern-islands/timing/BranchUnit.h:40:	std::deque<std::unique_ptr<Uop>> decode_buffer;
+src/arch/southern-islands/timing/BranchUnit.h:43:	std::deque<std::unique_ptr<Uop>> read_buffer;
+src/arch/southern-islands/timing/BranchUnit.h:46:	std::deque<std::unique_ptr<Uop>> exec_buffer;
+src/arch/southern-islands/timing/BranchUnit.h:49:	std::deque<std::unique_ptr<Uop>> write_buffer;
+src/arch/southern-islands/timing/BranchUnit.h:142:	void Issue(std::unique_ptr<Uop> uop) override;
+src/arch/southern-islands/timing/ScalarUnit.h:37:	std::deque<std::unique_ptr<Uop>> decode_buffer;
+src/arch/southern-islands/timing/ScalarUnit.h:40:	std::deque<std::unique_ptr<Uop>> read_buffer;
+src/arch/southern-islands/timing/ScalarUnit.h:43:	std::deque<std::unique_ptr<Uop>> exec_buffer;
+src/arch/southern-islands/timing/ScalarUnit.h:46:	std::deque<std::unique_ptr<Uop>> write_buffer;
+src/arch/southern-islands/timing/ScalarUnit.h:49:	std::deque<std::unique_ptr<Uop>> inflight_buffer;
+src/arch/southern-islands/timing/ScalarUnit.h:113:	void Issue(std::unique_ptr<Uop> uop) override;
+src/arch/southern-islands/timing/FetchBuffer.cc:28:void FetchBuffer::Remove(std::list<std::unique_ptr<Uop>>::iterator it)
+src/arch/southern-islands/timing/LdsUnit.cc:66:void LdsUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/timing/SimdUnit.cc:65:void SimdUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/timing/WavefrontPool.h:144:	std::vector<std::unique_ptr<WavefrontPoolEntry>> wavefront_pool_entries;
+src/arch/southern-islands/timing/WavefrontPool.h:162:	std::vector<std::unique_ptr<WavefrontPoolEntry>>::iterator begin()
+src/arch/southern-islands/timing/WavefrontPool.h:168:	std::vector<std::unique_ptr<WavefrontPoolEntry>>::iterator end()
+src/arch/southern-islands/timing/ExecutionUnit.cc:29:void ExecutionUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/timing/ComputeUnit.h:78:	std::vector<std::unique_ptr<WavefrontPool>> wavefront_pools;
+src/arch/southern-islands/timing/ComputeUnit.h:81:	std::vector<std::unique_ptr<FetchBuffer>> fetch_buffers;
+src/arch/southern-islands/timing/ComputeUnit.h:84:	std::vector<std::unique_ptr<SimdUnit>> simd_units;
+src/arch/southern-islands/timing/ComputeUnit.h:99:	std::unique_ptr<mem::Module> lds_module;
+src/arch/southern-islands/timing/LdsUnit.h:36:	std::deque<std::unique_ptr<Uop>> decode_buffer;
+src/arch/southern-islands/timing/LdsUnit.h:39:	std::deque<std::unique_ptr<Uop>> read_buffer;
+src/arch/southern-islands/timing/LdsUnit.h:42:	std::deque<std::unique_ptr<Uop>> mem_buffer;
+src/arch/southern-islands/timing/LdsUnit.h:45:	std::deque<std::unique_ptr<Uop>> write_buffer;
+src/arch/southern-islands/timing/LdsUnit.h:106:	void Issue(std::unique_ptr<Uop> uop) override;
+src/arch/southern-islands/timing/Timing.cc:33:std::unique_ptr<Timing> Timing::instance;
+src/arch/southern-islands/timing/BranchUnit.cc:64:void BranchUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/timing/ExecutionUnit.h:49:	std::deque<std::unique_ptr<Uop>> issue_buffer;
+src/arch/southern-islands/timing/ExecutionUnit.h:75:	virtual void Issue(std::unique_ptr<Uop> uop);
+src/arch/southern-islands/timing/Gpu.h:58:	std::unique_ptr<mem::Mmu> mmu;
+src/arch/southern-islands/timing/Gpu.h:61:	std::vector<std::unique_ptr<ComputeUnit>> compute_units;
+src/arch/southern-islands/timing/Gpu.h:168:	std::vector<std::unique_ptr<ComputeUnit>>::iterator getComputeUnitsBegin()
+src/arch/southern-islands/timing/Gpu.h:174:	std::vector<std::unique_ptr<ComputeUnit>>::iterator getComputeUnitsEnd()
+src/arch/southern-islands/timing/Timing.h:43:	static std::unique_ptr<Timing> instance;
+src/arch/southern-islands/timing/Timing.h:76:	std::unique_ptr<Gpu> gpu;
+src/arch/southern-islands/timing/VectorMemoryUnit.h:36:	std::deque<std::unique_ptr<Uop>> decode_buffer;
+src/arch/southern-islands/timing/VectorMemoryUnit.h:39:	std::deque<std::unique_ptr<Uop>> read_buffer;
+src/arch/southern-islands/timing/VectorMemoryUnit.h:42:	std::deque<std::unique_ptr<Uop>> mem_buffer;
+src/arch/southern-islands/timing/VectorMemoryUnit.h:45:	std::deque<std::unique_ptr<Uop>> write_buffer;
+src/arch/southern-islands/timing/VectorMemoryUnit.h:133:	void Issue(std::unique_ptr<Uop> uop) override;
+src/arch/southern-islands/timing/ScalarUnit.cc:78:void ScalarUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/timing/VectorMemoryUnit.cc:67:void VectorMemoryUnit::Issue(std::unique_ptr<Uop> uop)
+src/arch/southern-islands/driver/Kernel.cc:168:			std::unique_ptr<SI::Argument> arg(
+src/arch/southern-islands/driver/Kernel.cc:282:			std::unique_ptr<SI::Argument> 
+src/arch/southern-islands/driver/Kernel.cc:353:			std::unique_ptr<SI::Argument> arg(new SI::ImageArgument(
+src/arch/southern-islands/driver/Kernel.cc:395:			std::unique_ptr<SI::Argument> arg(
+src/arch/southern-islands/driver/Driver.cc:54:std::unique_ptr<Driver> Driver::instance;
+src/arch/southern-islands/driver/Program.h:41:	std::unique_ptr<char[]> data;
+src/arch/southern-islands/driver/Program.h:75:	std::unique_ptr<ELFReader::File> elf_file;
+src/arch/southern-islands/driver/Program.h:78:	std::vector<std::unique_ptr<ConstantBuffer>> constant_buffers;
+src/arch/southern-islands/driver/Kernel.h:56:	std::vector<std::unique_ptr<Argument>> arguments;
+src/arch/southern-islands/driver/Kernel.h:59:	std::unique_ptr<Binary> binary_file;
+src/arch/southern-islands/driver/Kernel.h:107:	std::vector<std::unique_ptr<Argument>> &getArgs() { return arguments; }
+src/arch/southern-islands/driver/Driver.h:46:	static std::unique_ptr<Driver> instance;
+src/arch/southern-islands/driver/Driver.h:49:	std::vector<std::unique_ptr<Program>> programs;
+src/arch/southern-islands/driver/Driver.h:52:	std::vector<std::unique_ptr<Kernel>> kernels;
+src/arch/southern-islands/driver/Driver.h:171:	std::vector<std::unique_ptr<Program>> &getPrograms() { return programs; }
+src/arch/southern-islands/emulator/Emulator.h:99:	static std::unique_ptr<Emulator> instance;
+src/arch/southern-islands/emulator/Emulator.h:115:	std::list<std::unique_ptr<NDRange>> ndranges;
+src/arch/southern-islands/emulator/Emulator.h:118:	std::unique_ptr<mem::Memory> video_memory;
+src/arch/southern-islands/emulator/Emulator.h:124:	std::unique_ptr<mem::Memory> shared_memory;
+src/arch/southern-islands/emulator/Emulator.h:233:	std::list<std::unique_ptr<NDRange>>::iterator getNDRangesBegin()
+src/arch/southern-islands/emulator/Emulator.h:239:	std::list<std::unique_ptr<NDRange>>::iterator getNDRangesEnd()
+src/arch/southern-islands/emulator/Emulator.cc:35:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/southern-islands/emulator/NDRange.h:132:	std::list<std::unique_ptr<WorkGroup>> work_groups;
+src/arch/southern-islands/emulator/NDRange.h:159:	std::unique_ptr<mem::Memory> instruction_memory;
+src/arch/southern-islands/emulator/NDRange.h:160:	std::unique_ptr<char[]> instruction_buffer;
+src/arch/southern-islands/emulator/NDRange.h:213:	std::list<std::unique_ptr<NDRange>>::iterator ndranges_iterator;
+src/arch/southern-islands/emulator/NDRange.h:299:	std::list<std::unique_ptr<WorkGroup>>::iterator getWorkGroupsBegin()
+src/arch/southern-islands/emulator/NDRange.h:305:	std::list<std::unique_ptr<WorkGroup>>::iterator getWorkGroupsEnd()
+src/arch/southern-islands/emulator/NDRange.h:421:	std::list<std::unique_ptr<WorkGroup>>::iterator WorkGroupBegin()
+src/arch/southern-islands/emulator/NDRange.h:427:	std::list<std::unique_ptr<WorkGroup>>::iterator WorkGroupEnd()
+src/arch/southern-islands/emulator/WorkGroup.h:83:	std::vector<std::unique_ptr<WorkItem>> work_items;
+src/arch/southern-islands/emulator/WorkGroup.h:86:	std::vector<std::unique_ptr<Wavefront>> wavefronts;
+src/arch/southern-islands/emulator/WorkGroup.h:92:	std::unique_ptr<WorkGroupData> data;
+src/arch/southern-islands/emulator/WorkGroup.h:143:	std::list<std::unique_ptr<WorkGroup>>::iterator work_groups_iterator;
+src/arch/southern-islands/emulator/WorkGroup.h:280:	std::vector<std::unique_ptr<WorkItem>>::iterator getWorkItemsBegin()
+src/arch/southern-islands/emulator/WorkGroup.h:286:	std::vector<std::unique_ptr<WorkItem>>::iterator getWorkItemsEnd()
+src/arch/southern-islands/emulator/WorkGroup.h:302:	std::vector<std::unique_ptr<Wavefront>>::iterator getWavefrontsBegin()
+src/arch/southern-islands/emulator/WorkGroup.h:308:	std::vector<std::unique_ptr<Wavefront>>::iterator getWavefrontsEnd()
+src/arch/southern-islands/emulator/Wavefront.h:63:	std::unique_ptr<WavefrontData> data;
+src/arch/southern-islands/emulator/Wavefront.h:70:	std::unique_ptr<Instruction> instruction;
+src/arch/southern-islands/emulator/Wavefront.h:74:	std::unique_ptr<WorkItem> scalar_work_item;
+src/arch/southern-islands/emulator/Wavefront.h:80:	std::vector<std::unique_ptr<WorkItem>>::iterator work_items_begin;
+src/arch/southern-islands/emulator/Wavefront.h:87:	std::vector<std::unique_ptr<WorkItem>>::iterator work_items_end;
+src/arch/southern-islands/emulator/Wavefront.h:315:	void setWorkItemsBegin(std::vector<std::unique_ptr<WorkItem>>::iterator work_items_begin)
+src/arch/southern-islands/emulator/Wavefront.h:321:	void setWorkItemsEnd(std::vector<std::unique_ptr<WorkItem>>::iterator work_items_end)
+src/arch/southern-islands/emulator/Wavefront.h:388:	std::vector<std::unique_ptr<WorkItem>>::iterator getWorkItemsBegin()
+src/arch/southern-islands/emulator/Wavefront.h:395:	std::vector<std::unique_ptr<WorkItem>>::iterator getWorkItemsEnd()
+src/arch/arm/disassembler/Disassembler.h:56:	static std::unique_ptr<Disassembler> instance;
+src/arch/arm/disassembler/Disassembler.cc:665:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/arm/emulator/Emulator.h:53:	static std::unique_ptr<Emulator> instance;
+src/arch/arm/emulator/Emulator.h:59:	std::list<std::unique_ptr<Context>> contexts;
+src/arch/arm/emulator/Emulator.h:139:	std::list<std::unique_ptr<Context>> &getContexts() { return contexts; }
+src/arch/arm/emulator/Emulator.cc:48:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/arm/emulator/Context.h:158:	std::unique_ptr<mem::SpecMem> spec_mem;
+src/arch/arm/emulator/Context.h:170:	std::unique_ptr<comm::CallStack> call_stack;
+src/arch/arm/emulator/Context.h:275:		std::unique_ptr<ELFReader::File> binary;
+src/arch/arm/emulator/Context.h:619:	std::list<std::unique_ptr<Context>>::iterator contexts_iter;
+src/arch/arm/emulator/Signal.h:158:	std::unique_ptr<Regs> regs;
+src/arch/x86/disassembler/Disassembler.h:57:	static std::unique_ptr<Disassembler> instance;
+src/arch/x86/disassembler/Disassembler.cc:84:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/x86/timing/Thread.h:210:	std::unique_ptr<BranchPredictor> branch_predictor;
+src/arch/x86/timing/Thread.h:213:	std::unique_ptr<TraceCache> trace_cache;
+src/arch/x86/timing/Thread.h:216:	std::unique_ptr<RegisterFile> register_file;
+src/arch/x86/timing/TraceCache.h:129:	std::unique_ptr<Entry[]> entries;
+src/arch/x86/timing/TraceCache.h:133:	std::unique_ptr<Entry> temp;
+src/arch/x86/timing/Timing.cc:32:std::unique_ptr<Timing> Timing::instance;
+src/arch/x86/timing/Cpu.h:178:	std::vector<std::unique_ptr<Core>> cores;
+src/arch/x86/timing/Core.h:52:	std::vector<std::unique_ptr<Thread>> threads;
+src/arch/x86/timing/RegisterFile.h:96:	std::unique_ptr<PhysicalRegister[]> integer_registers;
+src/arch/x86/timing/RegisterFile.h:99:	std::unique_ptr<int[]> free_integer_registers;
+src/arch/x86/timing/RegisterFile.h:127:	std::unique_ptr<PhysicalRegister[]> floating_point_registers;
+src/arch/x86/timing/RegisterFile.h:130:	std::unique_ptr<int[]> free_floating_point_registers;
+src/arch/x86/timing/RegisterFile.h:163:	std::unique_ptr<PhysicalRegister[]> xmm_registers;
+src/arch/x86/timing/RegisterFile.h:166:	std::unique_ptr<int[]> free_xmm_registers;
+src/arch/x86/timing/BranchPredictor.h:110:	std::unique_ptr<int[]> ras;
+src/arch/x86/timing/BranchPredictor.h:124:	std::unique_ptr<BtbEntry[]> btb;
+src/arch/x86/timing/BranchPredictor.h:129:	std::unique_ptr<char[]> bimod;
+src/arch/x86/timing/BranchPredictor.h:133:	std::unique_ptr<unsigned int[]> two_level_bht;  // array of level1_size branch history registers
+src/arch/x86/timing/BranchPredictor.h:134:	std::unique_ptr<char[]> two_level_pht;  // array of level2_size*2^hist_size 2-bit counters
+src/arch/x86/timing/BranchPredictor.h:139:	std::unique_ptr<char[]> choice;
+src/arch/x86/timing/Alu.h:62:	std::vector<std::unique_ptr<FunctionalUnit>> functional_units;
+src/arch/x86/timing/Timing.h:53:	static std::unique_ptr<Timing> instance;
+src/arch/x86/timing/Timing.h:81:	std::unique_ptr<Cpu> cpu;
+src/arch/x86/emulator/Emulator.h:72:	static std::unique_ptr<Emulator> instance;
+src/arch/x86/emulator/Emulator.h:82:	std::list<std::unique_ptr<Context>> contexts;
+src/arch/x86/emulator/Emulator.h:223:	std::list<std::unique_ptr<Context>>::iterator getContextsBegin()
+src/arch/x86/emulator/Emulator.h:229:	std::list<std::unique_ptr<Context>>::iterator getContextsEnd()
+src/arch/x86/emulator/Emulator.cc:38:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/x86/emulator/Context.h:169:	std::unique_ptr<mem::SpecMem> spec_mem;
+src/arch/x86/emulator/Context.h:181:	std::unique_ptr<comm::CallStack> call_stack;
+src/arch/x86/emulator/Context.h:326:		std::unique_ptr<ELFReader::File> binary;
+src/arch/x86/emulator/Context.h:878:	std::list<std::unique_ptr<Context>>::iterator contexts_iterator;
+src/arch/x86/emulator/Context.h:1012:	std::unique_ptr<misc::Bitmap> thread_affinity;
+src/arch/x86/emulator/Signal.h:217:	std::unique_ptr<Regs> regs;
+src/arch/mips/disassembler/Disassembler.h:41:	static std::unique_ptr<Disassembler> instance;
+src/arch/mips/disassembler/Disassembler.cc:275:std::unique_ptr<Disassembler> Disassembler::instance;
+src/arch/mips/emulator/Emulator.h:52:	static std::unique_ptr<Emulator> instance;
+src/arch/mips/emulator/Emulator.h:58:	std::list<std::unique_ptr<Context>> contexts;
+src/arch/mips/emulator/Emulator.h:138:	std::list<std::unique_ptr<Context>> &getContexts() { return contexts; }
+src/arch/mips/emulator/Emulator.cc:48:std::unique_ptr<Emulator> Emulator::instance;
+src/arch/mips/emulator/Context.h:124:	std::unique_ptr<mem::SpecMem> spec_mem;
+src/arch/mips/emulator/Context.h:140:	std::unique_ptr<comm::CallStack> call_stack;
+src/arch/mips/emulator/Context.h:217:		std::unique_ptr<ELFReader::File> binary;
+src/arch/mips/emulator/Context.h:414:	std::list<std::unique_ptr<Context>>::iterator contexts_iter;
+src/arch/mips/emulator/Signal.h:158:	std::unique_ptr<Regs> regs;
+tests/src/arch/southern-islands/emu/ObjectPool.h:46:	std::unique_ptr<NDRange> ndrange;
+tests/src/arch/southern-islands/emu/ObjectPool.h:49:	std::unique_ptr<WorkGroup> work_group;
+tests/src/arch/southern-islands/emu/ObjectPool.h:52:	std::unique_ptr<Wavefront> wavefront;
+tests/src/arch/southern-islands/emu/ObjectPool.h:55:	std::unique_ptr<WorkItem> work_item;
+tests/src/arch/southern-islands/emu/ObjectPool.h:58:	std::unique_ptr<Instruction> inst;
+tests/src/arch/x86/timing/ObjectPool.h:44:	static std::unique_ptr<ObjectPool> instance;
+tests/src/arch/x86/timing/TestBranchPredictor.cc:99:	std::vector<std::unique_ptr<Uop>> uops;
+tests/src/arch/x86/timing/TestBranchPredictor.cc:212:	std::vector<std::unique_ptr<Uop>> uops;
+tests/src/arch/x86/timing/TestBranchPredictor.cc:392:	std::vector<std::unique_ptr<Uop>> uops;
+tests/src/arch/x86/timing/ObjectPool.cc:27:std::unique_ptr<ObjectPool> ObjectPool::instance;
+tests/src/arch/x86/timing/TestAlu.cc:243:	std::vector<std::unique_ptr<Uop>> uops;
+tests/src/arch/x86/timing/TestTraceCache.cc:53:static std::vector<std::unique_ptr<Uop>> uop_list;

@@ -20,7 +20,7 @@
 #include <arch/common/Arch.h>
 #include <memory/System.h>
 #include <lib/util/misc.h>
-#include <arch/southern-islands/emulator/Emulator.h>
+
 
 #include "Alu.h"
 #include "Timing.h"

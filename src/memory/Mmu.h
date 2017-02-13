@@ -103,7 +103,7 @@ public:
 	/// Virtual memory space in the MMU
 	class Space
 	{
-		// Name of the irtual memory space
+		// Name of the virtual memory space
 		std::string name;
 
 		// Memory management unit that it belongs to
@@ -171,7 +171,7 @@ public:
 	// Static members
 	//
 	//Read only possible for this mmu
-	unsigned int read_only;
+	unsigned int read_only = 0;
 
 
 	/// Register command-line options
@@ -247,8 +247,9 @@ public:
 	/// Return `true` if the provided physical address is currently mapped
 	/// to a valid virtual address.
 	bool isValidPhysicalAddress(unsigned physical_address);
-	void MMUCopyTranslation(Mmu *mmu, Space *self_address_space_index,
-						                Space *other_address_space_index, unsigned int vtl_addr,
+
+	///  Ensure that the CPU and GPU have the same translations
+	void MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu, Space *other_address_space,unsigned int vtl_addr,
 						                unsigned int size);
 
 

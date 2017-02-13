@@ -29,14 +29,13 @@
 namespace mem
 {
 
-
 //
 // Class 'Mmu::Space'
 //
 
 Mmu::Space::Space(const std::string &name, Mmu *mmu) :
-				name(name),
-				mmu(mmu)
+						name(name),
+						mmu(mmu)
 {
 	// Debug
 	debug << misc::fmt("[MMU %s] Space %s created\n",
@@ -48,10 +47,12 @@ Mmu::Space::Space(const std::string &name, Mmu *mmu) :
 void Mmu::Space::addPage(Page *page)
 {
 	// Sanity
+
 	unsigned virtual_address = page->getVirtualAddress();
 	assert((virtual_address & ~PageMask) == 0);
 	assert(virtual_pages.find(virtual_address) == virtual_pages.end());
 	virtual_pages[virtual_address] = page;
+
 }
 
 
@@ -61,8 +62,6 @@ Mmu::Page *Mmu::Space::getPage(unsigned virtual_address)
 	auto it = virtual_pages.find(virtual_address);
 	return it == virtual_pages.end() ? nullptr : it->second;
 }
-
-
 
 
 //
@@ -99,7 +98,7 @@ void Mmu::ProcessOptions()
 
 
 Mmu::Mmu(const std::string &name) :
-				name(name)
+						name(name)
 {
 	// Debug
 	debug << misc::fmt("[MMU %s] Memory management unit created\n",
@@ -124,10 +123,19 @@ unsigned Mmu::TranslateVirtualAddress(Space *space,
 	unsigned virtual_tag = virtual_address & PageMask;
 	unsigned page_offset = virtual_address & ~PageMask;
 
-	// Find page, and created if not found
+	// Find page, and create it if not found
 	Page *page = space->getPage(virtual_tag);
 	if (page == nullptr)
 	{
+		//If the MMU is in read only mode it is likely that the simulator
+		//is using a unified memory configuration and GPU is trying to
+		//access a page that has not been initialized by its driver
+
+		if(read_only)
+		{
+			//FIXME : Add a fatal call and stop simulation
+		}
+
 		// Create new page
 		pages.emplace_back(new Page(space, virtual_tag,
 				top_physical_address));
@@ -208,56 +216,43 @@ bool Mmu::TranslatePhysicalAddress(unsigned physical_address,
 	return true;
 }
 
-void Mmu::MMUCopyTranslation(Mmu *mmu, Space *self_address_space_index,
-        Space *other_address_space_index, unsigned int vtl_addr,
-        unsigned int size)
+void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
+		Space *other_address_space, unsigned int vtl_addr,
+		unsigned int size)
 {
-	//
-	/*assert(self_mmu->read_only);
+	// Check things below for correctness
+	assert(read_only);
 	assert(!other_mmu->read_only);
-	assert(self_mmu->PageSize == other_mmu->PageSize);
-	assert(self_mmu->PageMask == other_mmu->PageMask);
+	assert(PageSize == other_mmu->PageSize);
+	assert(PageMask == other_mmu->PageMask);
 
-	Page *self_page, *other_page;
-
-	int vtl_index;
-	int phy_index;
-
+	// Initialize these variables
+	int vtl_index = 0;
+	int phy_index = 0;
 	unsigned int addr = vtl_addr & PageMask;
+	unsigned int virtual_tag;
 
-	while (virtual_tag <= (vtl_addr + size))
+	//Map all pages in this range
+	while (addr <= (vtl_addr + size))
 	{
-		other_page = other_address_space->getPage(vtl_addr);
-		phy_index  = other_page->getPhysicalAddress() >> LogPageSize;
-		Page *page = self_address_space->getPage(virtual_tag);
-		if(pages.size() <= phy_index && page == nullptr)
-		{
-			// Create new page
-			pages.emplace_back(new Page(self_address_space, virtual_tag,
-						top_physical_address));
-		}
-		else if (page != nullptr)
-		{
-			   self_page = page;
-		}
-		else if (page == nullptr)
-		{
+		//Find existing page in other MMU and retrieve the physical index
+		other_mmu->TranslateVirtualAddress(other_address_space,addr);
+		Page *other_page = other_address_space->getPage(addr);
+		phy_index = other_page->getPhysicalAddress() >> LogPageSize;
 
-		}
+		//Fixme : Unsure what to do in between here. Cannot correlate the code
 
-	}*/
+		addr += PageSize;
+	}
 }
 
 
 bool Mmu::isValidPhysicalAddress(unsigned physical_address)
-		{
-			unsigned physical_tag = physical_address & PageMask;
-			auto it = physical_pages.find(physical_tag);
-			return it != physical_pages.end();
-		}
-
-
-
+{
+	unsigned physical_tag = physical_address & PageMask;
+	auto it = physical_pages.find(physical_tag);
+	return it != physical_pages.end();
+}
 
 } // namespace mem
 

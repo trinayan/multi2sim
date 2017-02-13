@@ -20,6 +20,7 @@
 #include <arch/southern-islands/emulator/Emulator.h>
 #include <arch/southern-islands/emulator/NDRange.h>
 #include <arch/x86/emulator/Emulator.h>
+#include <src/memory/Mmu.h>
 #include <lib/cpp/Error.h>
 #include <lib/cpp/Misc.h>
 #include <string.h>
@@ -798,9 +799,9 @@ void Kernel::CreateBufferDescriptor(unsigned base_addr,
 // Public functions
 
 Kernel::Kernel(int id, const std::string &name, Program *program) :
-				id(id),
-				name(name),
-				program(program)
+										id(id),
+										name(name),
+										program(program)
 {
 	metadata_symbol = program->getSymbol("__OpenCL_" + name + "_metadata");
 	header_symbol = program->getSymbol("__OpenCL_" + name + "_header");
@@ -1104,61 +1105,64 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 	}
 }
 
-void Kernel::NDRangeSetupMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context)
+void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context)
 {
-	//
-	//SI::Argument *arg;
-	/*SI::Emulator *si_emulator = SI::Emulator::getInstance();
+	//Get x86 and SI Emulator instance
+	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 	x86::Emulator *x86_emulator = x86::Emulator::getInstance();
 
-	assert(ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace()) ;
+	//Get the SI emulator MMU
+	mem::Mmu *gpu_mmu = si_emulator->getMmu();
 
-	//MMUCopyTranslation
+	// Check if the ndrange address space is equal to the x86 context address space.
+	//This is a requirement for Shared Memory
+	assert(ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace());
 
 	//Map Constant buffers to MMU
-	MMUCopyTranslation(si_emulator->getMmu(),ndrange->address_space,x86_emulator->getMmu(),
-			x86_emulator->getContext(context->getId())->getMmuSpace(),cb_ptr,
-			NDRange::ConstBufTableSize);
+	gpu_mmu->MMUCopyTranslation(ndrange->address_space, x86_emulator->getMmu(),x86_emulator->getContext(context->getId())->getMmuSpace()
+			,cb_ptr,NDRange::TotalConstBufSize);
+
 	//Map internal buffers to MMU
 	unsigned int internal_tables_size = NDRange::ConstBufTableSize + NDRange::ResourceTableSize
 			+ NDRange::UAVTableSize;
-
-	MMUCopyTranslation(si_emulator->getMmu(),ndrange->address_space,x86_emulator->getMmu(),
+	gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),
 			x86_emulator->getContext(context->getId())->getMmuSpace(),table_ptr,
 			internal_tables_size);
 
+	//Get all arguments
 	for(auto &arg : getArgs())
 	{
 		assert(arg);
+		switch(arg->getType())
+		{
+		case Argument::TypePointer:
+		{
+			PointerArgument *arg_ptr =dynamic_cast<PointerArgument *>(arg.get());
+			switch (arg_ptr->getScope())
+			{
+			case Argument::ScopeUAV:
+			{
+				gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),
+						x86_emulator->getContext(context->getId())->getMmuSpace(),
+						arg_ptr->getDevicePtr(),arg->size);
+				break;
+			}
+			case Argument::ScopeHwConstant:
+			{
+				gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),
+						x86_emulator->getContext(context->getId())->getMmuSpace(),
+						arg_ptr->getDevicePtr(),arg->size);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		default:
+			break;
+		}
 
-				switch(arg->getType())
-				{
-				case Argument::ScopeUAV:
-				{
-					//opencl_Debug
-					MMUCopyTranslation(si_emulator->getMmu(),NDRange::address_space,
-							x86_emulator->getMmu(),
-							x86_emulator->getContext(context->getId())->getMmuSpace(),
-									arg->getDevicePtr(),arg->size);
-									break;
-				}
-
-				case Argument::ScopeHwConstant:
-				{
-					MMUCopyTranslation(si_emulator->getMmu(),NDRange::address_space,
-							x86_emulator->getMmu(),
-							x86_emulator->getContext(context->getId())->getMmuSpace(),
-									arg->getDevicePtr(),arg->size);
-									break;
-
-				}
-				default:
-				{
-					break;
-				}
-
-				}
-	}*/
+	}
 }
 
 void Kernel::DebugNDRangeState(NDRange *ndrange)
@@ -1281,14 +1285,14 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 
 		// Read a buffer description of the constant buffer
 		video_memory->Read(
-				ndrange->getConstBufferTableAddr() + 
-				i * NDRange::ConstBufTableEntrySize, 
+				ndrange->getConstBufferTableAddr() +
+				i * NDRange::ConstBufTableEntrySize,
 				sizeof(buffer_desc), (char *) &buffer_desc);
 
 		// Add constant buffer information to debug output
 		Emulator::isa_debug << misc::fmt("\t| CB%-2d  | [%10llu:%10llu] |\n",
 				i, (long long unsigned int) buffer_desc.base_addr,
-				(long long unsigned int) buffer_desc.base_addr + 
+				(long long unsigned int) buffer_desc.base_addr +
 				(long long unsigned int) buffer_desc.num_records - 1);
 	}
 	Emulator::isa_debug << misc::fmt("\t-----------------------------------\n");
@@ -1309,15 +1313,15 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 
 		// Read a buffer description of the UAV
 		video_memory->Read(
-				ndrange->getUAVTableAddr() + 
-				i * NDRange::UAVTableEntrySize, 
-				sizeof(buffer_desc), 
+				ndrange->getUAVTableAddr() +
+				i * NDRange::UAVTableEntrySize,
+				sizeof(buffer_desc),
 				(char *) &buffer_desc);
 
 		// Add UAV information to debug output
 		Emulator::isa_debug << misc::fmt("\t| UAV%-2d | [%10u:%10u] |\n",
 				i, (unsigned int) buffer_desc.base_addr,
-				(unsigned int) buffer_desc.base_addr + 
+				(unsigned int) buffer_desc.base_addr +
 				(unsigned int) buffer_desc.num_records - 1);
 	}
 
@@ -1386,7 +1390,7 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 	ndrange->ConstantBufferWrite(0, 40,
 			ndrange->getGroupCountPtr(2), 4);
 
-	// 0 
+	// 0
 	ndrange->ConstantBufferWrite(0, 44, &zero, 4);
 
 	// CB0 bytes 48:63
@@ -1396,10 +1400,10 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 
 	// FIXME Private memory allocated per work_item
 
-	// 0 
+	// 0
 	ndrange->ConstantBufferWrite(0, 56, &zero, 4);
 
-	// 0 
+	// 0
 	ndrange->ConstantBufferWrite(0, 60, &zero, 4);
 
 	// CB0 bytes 64:79
