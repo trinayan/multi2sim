@@ -20,7 +20,7 @@
 #include <arch/common/Arch.h>
 #include <memory/System.h>
 #include <lib/util/misc.h>
-
+#include <arch/southern-islands/emulator/Emulator.h>
 
 #include "Alu.h"
 #include "Timing.h"
@@ -393,7 +393,7 @@ void Timing::FastForwardOpenCL()
 	    {
 		//Not in spec mode
 
-;	    	emulator->context_debug<<"Not in spec mode";
+	    	emulator->context_debug<<"Not in spec mode";
 	    }
 	}
 
@@ -434,9 +434,7 @@ void Timing::FastForwardOpenCL()
 
 			}
 		}
-	  }
-
-	for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
+for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
 		{
 			Context *context = it->get();
 		    if(context->getState(Context::StateSpecMode))
@@ -450,6 +448,7 @@ void Timing::FastForwardOpenCL()
 		    	emulator->context_debug<<"Not in Spec mode";
 		    }
 		}
+}
 
 }
 

@@ -127,14 +127,15 @@ unsigned Mmu::TranslateVirtualAddress(Space *space,
 	Page *page = space->getPage(virtual_tag);
 	if (page == nullptr)
 	{
+		//printf("Allocating a new page \n");
+
 		//If the MMU is in read only mode it is likely that the simulator
 		//is using a unified memory configuration and GPU is trying to
 		//access a page that has not been initialized by its driver
-
-		if(read_only)
+		/*if(read_only)
 		{
 			//FIXME : Add a fatal call and stop simulation
-		}
+		}*/
 
 		// Create new page
 		pages.emplace_back(new Page(space, virtual_tag,
@@ -227,20 +228,20 @@ void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
 	assert(PageMask == other_mmu->PageMask);
 
 	// Initialize these variables
-	int vtl_index = 0;
-	int phy_index = 0;
+//	int phy_index = 0;
 	unsigned int addr = vtl_addr & PageMask;
-	unsigned int virtual_tag;
 
 	//Map all pages in this range
 	while (addr <= (vtl_addr + size))
 	{
 		//Find existing page in other MMU and retrieve the physical index
+		printf("MMUCOpy translate calling \n");
 		other_mmu->TranslateVirtualAddress(other_address_space,addr);
-		Page *other_page = other_address_space->getPage(addr);
-		phy_index = other_page->getPhysicalAddress() >> LogPageSize;
+		//Page *other_page = other_address_space->getPage(addr);
+		//phy_index = other_page->getPhysicalAddress() >> LogPageSize;
 
 		//Fixme : Unsure what to do in between here. Cannot correlate the code
+
 
 		addr += PageSize;
 	}
