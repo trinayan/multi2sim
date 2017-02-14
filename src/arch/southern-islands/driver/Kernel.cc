@@ -1118,6 +1118,8 @@ void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_p
 	//This is a requirement for Shared Memory
 	assert(ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace());
 
+	gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),x86_emulator->getContext(context->getId())->getMmuSpace(),
+								cb_ptr,NDRange::TotalConstBufSize);
 	//Map Constant buffers to MMU
 	gpu_mmu->MMUCopyTranslation(ndrange->address_space, x86_emulator->getMmu(),x86_emulator->getContext(context->getId())->getMmuSpace()
 			,cb_ptr,NDRange::TotalConstBufSize);

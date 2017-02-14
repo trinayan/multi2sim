@@ -180,9 +180,6 @@ public:
 	/// Process command-line options
 	static void ProcessOptions();
 
-
-
-
 	//
 	// Class members
 	//
@@ -251,7 +248,6 @@ public:
 	///  Ensure that the CPU and GPU have the same translations
 	void MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu, Space *other_address_space,unsigned int vtl_addr,
 						                unsigned int size);
-
 
 };
 

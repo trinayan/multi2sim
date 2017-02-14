@@ -28,8 +28,6 @@
 #include <arch/common/Arch.h>
 #include <arch/common/Timing.h>
 
-#include <arch/southern-islands/emulator/Emulator.h>
-
 #include "BranchPredictor.h"
 #include "Cpu.h"
 #include "TraceCache.h"
@@ -72,7 +70,7 @@ class Timing : public comm::Timing
 
 	// Frequency of memory system in MHz
 	static int frequency;
-	static int opencl_fast_forward;
+	static bool opencl_fast_forward;
 	
 	
 	//
@@ -81,9 +79,6 @@ class Timing : public comm::Timing
 
 	// CPU object
 	std::unique_ptr<Cpu> cpu;
-
-
-	// std::unique_ptr <SI::Emulator >  si_emulator;
 
 	// List of entry modules to the memory hierarchy
 	std::vector<mem::Module *> entry_modules;

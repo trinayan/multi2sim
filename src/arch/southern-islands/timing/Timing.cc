@@ -1145,7 +1145,6 @@ bool Timing::Run()
 			// mapped and unmapped since the waitingworkgroups list
 			// of ndrange only grows with the driver calls.
 			// This solution doesn't work.
-			printf("Nd range is nullptr");
 			ndrange->address_space = gpu->getMmu()
 					->newSpace("Southern Islands");
 			gpu->MapNDRange(ndrange);

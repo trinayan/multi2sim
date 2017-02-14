@@ -348,6 +348,7 @@ void VectorMemoryUnit::Memory()
 						address_space,
 						work_item_info->
 						global_memory_access_address);
+		
 
 				// Make sure we can access the vector cache. If 
 				// so, submit the access. If we can access the

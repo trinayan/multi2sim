@@ -246,7 +246,7 @@ bool Timing::help = false;
 
 int Timing::frequency = 1000;
 
-bool Timing::opencl_fast_forward = false;
+int Timing::opencl_fast_forward;
 
 Timing::Timing() : comm::Timing("x86")
 {
@@ -349,20 +349,25 @@ void Timing::FastForward()
 
 void Timing::FastForwardOpenCL()
 {
-	//Get the emulator and esim instance
+	//std::cout<<"Fast frwrdng";
+	//Fast forward opencl when host is not running
+
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 
-	//Set the flush variable to 1 so that we dont fetch
+	int i , j;
+
 	cpu->setFlushing(1);
 
+	emulator->context_debug << "Entering fast forward";
+
 	//Clear the pipelines
-	for(int i=0; i < Cpu::getNumCores();i++)
+	for( i=0; i < Cpu::getNumCores();i++)
 	{
 
 		Core *core = cpu->getCore(i);
 		Alu  *alu  = core->getAlu();
-		for(int j=0; j< Cpu::getNumThreads();j++)
+		for(j=0; j< Cpu::getNumThreads();j++)
 		{
 			Thread *thread = cpu->getThread(i,j);
 			if(thread)
@@ -388,17 +393,15 @@ void Timing::FastForwardOpenCL()
 	    {
 		//Not in spec mode
 
-	    	emulator->context_debug<<"Not in spec mode";
+;	    	emulator->context_debug<<"Not in spec mode";
 	    }
 	}
 
-	//Set flush to 0
 	cpu->setFlushing(0);
 
-    //Get the SI Emulatr instance to count the number of ndranges running
-	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 
-	//Run till there are no nd ranges running and the esim engine has not finished
+	SI::Emulator *si_emulator = SI::Emulator::getInstance();
+    //Fast forward
 	while ((!si_emulator->getNumNDRanges()  && !esim_engine->hasFinished()))
 	{
 		emulator->Run();
@@ -410,16 +413,17 @@ void Timing::FastForwardOpenCL()
 		}
 
 	}
+	std::cout<<"Fast forwarding end";
 
 	//Clear the pipelines
 	if(!esim_engine->hasFinished())
 	{
-		for(int i=0; i < Cpu::getNumCores();i++)
+		for( i=0; i < Cpu::getNumCores();i++)
 		{
 
 			Core *core = cpu->getCore(i);
 			Alu  *alu  = core->getAlu();
-			for(int j=0; j< Cpu::getNumThreads();j++)
+			for(j=0; j< Cpu::getNumThreads();j++)
 			{
 				Thread *thread = cpu->getThread(i,j);
 				if(thread)
@@ -430,7 +434,9 @@ void Timing::FastForwardOpenCL()
 
 			}
 		}
-		for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
+	  }
+
+	for(auto it = emulator->getContextsBegin(), e = emulator->getContextsEnd(); it != e;++it)
 		{
 			Context *context = it->get();
 		    if(context->getState(Context::StateSpecMode))
@@ -444,7 +450,6 @@ void Timing::FastForwardOpenCL()
 		    	emulator->context_debug<<"Not in Spec mode";
 		    }
 		}
-}
 
 }
 
@@ -724,8 +729,8 @@ void Timing::RegisterOptions()
 			"to run.  If this maximum is reached, the simulation "
 			"will finish with the X86MaxCycles string.");
 
-	//Option --x86-opencl-fast-forward
-	command_line->RegisterBool("--x86-opencl-fast-forward", Timing::opencl_fast_forward,
+
+	command_line->RegisterInt32("--x86-opencl-fast-forward", Timing::opencl_fast_forward,
 			" Fast-forward (emulate) x86 instructions whenever an OpenCL kernel is not "
 			" being executed.  This option is only valid for detailed x86 simulation. "	);
 

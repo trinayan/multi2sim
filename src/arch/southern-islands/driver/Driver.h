@@ -51,7 +51,8 @@ class Driver : public comm::Driver
 	// Primary list of Kernels
 	std::vector<std::unique_ptr<Kernel>> kernels;
 
-	// Indicates whether memory is fused or not
+	// Indicates whether memory is fused or not.
+	//This variable is true when environment variable: M2S_OPENCL_SHARED_MEMORY=1
 	bool fused = false;
 
 	// Enumeration with all ABI call codes. Each entry of Driver.def will
