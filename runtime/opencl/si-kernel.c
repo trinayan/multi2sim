@@ -381,6 +381,7 @@ struct opencl_si_ndrange_t *opencl_si_ndrange_create(
 		args);
 
 	return arch_ndrange;
+
 }
 
 void opencl_si_ndrange_init(struct opencl_si_ndrange_t *ndrange)

@@ -580,7 +580,6 @@ int Driver::CallNDRangeCreate(comm::Context *context,
 	if(fused)
 	{
 		emulator->setGlobalMemory(memory);
-
 	}
 
 	// Read arguments
@@ -796,6 +795,7 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 
 	// Get NDRange
 	NDRange *ndrange = emulator->getNDRangeById(ndrange_id);
+
 	if (!ndrange)
 		throw Error(misc::fmt("%s: invalid ndrange ID (%d)", 
 				__FUNCTION__, ndrange_id));
@@ -820,23 +820,26 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 		ndrange->setResourceTable ((ndrange->getConstBufferTableAddr()+ ndrange->ConstBufTableSize + 16) & 0xFFFFFFF0) ;
 		ndrange->setUAVTable ((ndrange->getResourceTableAddr() + ndrange->ResourceTableSize + 16) & 0xFFFFFFF0);
 		ndrange->setCB0(cb_ptr);
+        ndrange->setCB1(cb_ptr + NDRange::ConstBuf0Size);
 
 		//Initialize the GPU MMU with the pages required for nd_range
 		//execution using the same translations as the CPU MMU.
-		kernel->SetupNDRangeMMU(ndrange,table_ptr,cb_ptr,context);
+        //FIXME: Not called yet because MMUCopyTranslation is incomplete
+		//kernel->SetupNDRangeMMU(ndrange,table_ptr,cb_ptr,context);
+	}
+	else
+	{
+		// Allocate tables and constant buffers
+		kernel->CreateNDRangeTables(ndrange);
+		kernel->CreateNDRangeConstantBuffers(ndrange);
 	}
 
 	// TODO - Add support for timing simulator
 
-
-	// Allocate tables and constant buffers
-	kernel->CreateNDRangeTables(ndrange);
-	kernel->CreateNDRangeConstantBuffers(ndrange);
-
-	// Setup constant buffers and arguments
 	kernel->SetupNDRangeConstantBuffers(ndrange);
 	kernel->SetupNDRangeArgs(ndrange);
 	kernel->DebugNDRangeState(ndrange);
+
 
 	// Return
 	return 0;
@@ -944,7 +947,6 @@ int Driver::CallNDRangeStart(comm::Context *context,
 		unsigned args_ptr)
 {
 	// Get emulator instance
-
 	SI::Emulator *emulator = SI::Emulator::getInstance();
 
 	// Increment number of ndranges that are running

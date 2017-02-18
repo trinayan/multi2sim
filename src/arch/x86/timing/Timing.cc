@@ -294,13 +294,12 @@ bool Timing::Run()
 		FastForward();
 
 	//Optionally fast-forward if opencl is not being executed
-	if (opencl_fast_forward && !si_emulator->getNumNDRanges() && !esim_engine->hasFinished())
+	if (opencl_fast_forward && !si_emulator->getNDRangesRunning() && !esim_engine->hasFinished())
 	{
-
 		FastForwardOpenCL();
 	}
-	// Stop if maximum number of CPU instructions exceeded
 
+	// Stop if maximum number of CPU instructions exceeded
 	if (Emulator::getMaxInstructions()
 	&& cpu->getNumCommittedInstructions()
 	>= Emulator::getMaxInstructions()
@@ -387,7 +386,6 @@ void Timing::FastForwardOpenCL()
 	    else
 	    {
 		//Not in spec mode
-
 	    	emulator->context_debug<<"Not in spec mode";
 	    }
 	}
@@ -399,7 +397,7 @@ void Timing::FastForwardOpenCL()
 	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 
 	//Run till there are no nd ranges running and the esim engine has not finished
-	while ((!si_emulator->getNumNDRanges()  && !esim_engine->hasFinished()))
+	while ((!si_emulator->getNDRangesRunning()  && !esim_engine->hasFinished()))
 	{
 		emulator->Run();
 

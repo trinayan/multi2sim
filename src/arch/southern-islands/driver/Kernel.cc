@@ -959,6 +959,7 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 
 		case Argument::TypePointer:
 		{
+
 			PointerArgument *arg_ptr = 
 					dynamic_cast<PointerArgument *>(
 							arg.get());
@@ -988,9 +989,9 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 				// UAV
 			case Argument::ScopeUAV:
 			{
+
 				Driver::debug << misc::fmt("(0x%x)", 
 						arg_ptr->getDevicePtr());
-
 				// Create descriptor for argument
 				CreateBufferDescriptor(
 						arg_ptr->getDevicePtr(),
@@ -1004,10 +1005,13 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 						arg_ptr->getBufferNum());
 
 				// Write 0 to CB1
+
 				ndrange->ConstantBufferWrite(
 						arg_ptr->getConstantBufferNum(),
 						arg_ptr->getConstantOffset(),
 						&zero, 4);
+
+
 
 				break;
 			}
@@ -1107,6 +1111,9 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 
 void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context)
 {
+	//FIXME: Called from DriverCall.cc. Since MMUCopyTranslation implementation
+	//is not complete therefore we dont call this function yet.
+
 	//Get x86 and SI Emulator instance
 	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 	x86::Emulator *x86_emulator = x86::Emulator::getInstance();
@@ -1118,8 +1125,6 @@ void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_p
 	//This is a requirement for Shared Memory
 	assert(ndrange->address_space = x86_emulator->getContext(context->getId())->getMmuSpace());
 
-	gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),x86_emulator->getContext(context->getId())->getMmuSpace(),
-								cb_ptr,NDRange::TotalConstBufSize);
 	//Map Constant buffers to MMU
 	gpu_mmu->MMUCopyTranslation(ndrange->address_space, x86_emulator->getMmu(),x86_emulator->getContext(context->getId())->getMmuSpace()
 			,cb_ptr,NDRange::TotalConstBufSize);
@@ -1135,6 +1140,12 @@ void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_p
 	for(auto &arg : getArgs())
 	{
 		assert(arg);
+		if (!(arg->set))
+					throw Driver::Error(misc::fmt("Kernel '%s': "
+							"Argument '%s' is not set",
+							getName().c_str(),
+							arg->name.c_str()));
+
 		switch(arg->getType())
 		{
 		case Argument::TypePointer:
@@ -1144,6 +1155,8 @@ void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_p
 			{
 			case Argument::ScopeUAV:
 			{
+				Driver::debug << misc::fmt("\tMapping uav %d, addr( 0x%x),size %u \n",arg_ptr->getBufferNum(),
+						                   arg_ptr->getDevicePtr(),arg_ptr->size);
 				gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),
 						x86_emulator->getContext(context->getId())->getMmuSpace(),
 						arg_ptr->getDevicePtr(),arg->size);
@@ -1151,6 +1164,8 @@ void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_p
 			}
 			case Argument::ScopeHwConstant:
 			{
+				Driver::debug << misc::fmt("\tMapping cb %d, addr( 0x%x) \n",arg_ptr->getConstantBufferNum(),
+										                   arg_ptr->getDevicePtr());
 				gpu_mmu->MMUCopyTranslation(ndrange->address_space,x86_emulator->getMmu(),
 						x86_emulator->getContext(context->getId())->getMmuSpace(),
 						arg_ptr->getDevicePtr(),arg->size);
@@ -1172,7 +1187,7 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 
 	// Get emulator instance and video memory
 	SI::Emulator *emulator = SI::Emulator::getInstance();
-	mem::Memory *video_memory = emulator->getVideoMemory();
+	mem::Memory *global_memory = emulator->getGlobalMemory();
 
 	// Create a buffer descriptor
 	WorkItem::BufferDescriptor buffer_desc;
@@ -1285,11 +1300,13 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 		if (!ndrange->getConstBuffer(i)->valid)
 			continue;
 
+
 		// Read a buffer description of the constant buffer
-		video_memory->Read(
+		global_memory->Read(
 				ndrange->getConstBufferTableAddr() +
 				i * NDRange::ConstBufTableEntrySize,
 				sizeof(buffer_desc), (char *) &buffer_desc);
+
 
 		// Add constant buffer information to debug output
 		Emulator::isa_debug << misc::fmt("\t| CB%-2d  | [%10llu:%10llu] |\n",
@@ -1314,7 +1331,8 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 			continue;
 
 		// Read a buffer description of the UAV
-		video_memory->Read(
+
+		global_memory->Read(
 				ndrange->getUAVTableAddr() +
 				i * NDRange::UAVTableEntrySize,
 				sizeof(buffer_desc),
@@ -1325,6 +1343,7 @@ void Kernel::DebugNDRangeState(NDRange *ndrange)
 				i, (unsigned int) buffer_desc.base_addr,
 				(unsigned int) buffer_desc.base_addr +
 				(unsigned int) buffer_desc.num_records - 1);
+
 	}
 
 	// Finish debug output
@@ -1344,14 +1363,12 @@ void Kernel::SetupNDRangeConstantBuffers(NDRange *ndrange)
 	CreateBufferDescriptor(ndrange->getConstBufferAddr(0),
 			NDRange::ConstBuf0Size,
 			1, Argument::DataTypeInt32, &buffer_descriptor);
-
 	ndrange->InsertBufferIntoConstantBufferTable(&buffer_descriptor, 0);
 
 	// Constant buffer 1
 	CreateBufferDescriptor(ndrange->getConstBufferAddr(1),
 			NDRange::ConstBuf1Size,
 			1, Argument::DataTypeInt32, &buffer_descriptor);
-
 	ndrange->InsertBufferIntoConstantBufferTable(&buffer_descriptor, 1);
 
 	// Initialize constant buffer 0

@@ -1147,9 +1147,9 @@ bool Timing::Run()
 			// This solution doesn't work.
 			ndrange->address_space = gpu->getMmu()
 					->newSpace("Southern Islands");
-			gpu->MapNDRange(ndrange);
+			//gpu->MapNDRange(ndrange);
 		}
-
+		gpu->MapNDRange(ndrange);
 		// If the waiting list is not empty
 		if (!ndrange->isWaitingWorkGroupsEmpty())
 		{

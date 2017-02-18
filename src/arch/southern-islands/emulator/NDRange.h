@@ -99,8 +99,9 @@ public:
 	/// Constant buffers
 	static const int ConstBuf0Size = 160;
 	static const int ConstBuf1Size = 1024;
-
+	//FIXME: Why is size different than in danalast?
 	static const int TotalConstBufSize = ConstBuf0Size + ConstBuf1Size;
+	//static const int TotalConstBufSize = 262144;
 
 private:
 
@@ -452,6 +453,7 @@ public:
 
 	/// Set const_buf_table
 	void setConstBufferTable(unsigned value) { const_buf_table = value; }
+	int getConstBufferTable() {return const_buf_table;}
 
 	/// Set uav_table
 	void setUAVTable(unsigned value) { uav_table = value; }

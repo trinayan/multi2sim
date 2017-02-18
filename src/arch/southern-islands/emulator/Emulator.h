@@ -289,6 +289,12 @@ public:
 	// FIXME - List of running NDRanges already exists. This might need to
 	// go if the x86 emulator does not need the number of ndranges like in
 	// the old C code.
+
+	/// Get the number of running ND Ranges
+	int getNDRangesRunning()
+	{
+		return ndranges_running;
+	}
 	/// Increment the number of running ND-ranges
 	void incNDRangesRunning() 
 	{ 
