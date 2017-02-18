@@ -1111,9 +1111,6 @@ void Kernel::SetupNDRangeArgs(NDRange *ndrange /* MMU *gpu_mmu */)
 
 void Kernel::SetupNDRangeMMU(NDRange *ndrange, unsigned table_ptr, unsigned cb_ptr, comm::Context *context)
 {
-	//FIXME: Called from DriverCall.cc. Since MMUCopyTranslation implementation
-	//is not complete therefore we dont call this function yet.
-
 	//Get x86 and SI Emulator instance
 	SI::Emulator *si_emulator = SI::Emulator::getInstance();
 	x86::Emulator *x86_emulator = x86::Emulator::getInstance();

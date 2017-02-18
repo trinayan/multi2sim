@@ -824,8 +824,7 @@ int Driver::CallNDRangePassMemObjs(comm::Context *context,
 
 		//Initialize the GPU MMU with the pages required for nd_range
 		//execution using the same translations as the CPU MMU.
-        //FIXME: Not called yet because MMUCopyTranslation is incomplete
-		//kernel->SetupNDRangeMMU(ndrange,table_ptr,cb_ptr,context);
+		kernel->SetupNDRangeMMU(ndrange,table_ptr,cb_ptr,context);
 	}
 	else
 	{

@@ -47,7 +47,6 @@ Mmu::Space::Space(const std::string &name, Mmu *mmu) :
 void Mmu::Space::addPage(Page *page)
 {
 	// Sanity
-
 	unsigned virtual_address = page->getVirtualAddress();
 	assert((virtual_address & ~PageMask) == 0);
 	assert(virtual_pages.find(virtual_address) == virtual_pages.end());
@@ -221,7 +220,6 @@ void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
 		Space *other_address_space, unsigned int vtl_addr,
 		unsigned int size)
 {
-	//FIXME : Currently not called since implementation incomplete
 	// Check things below for correctness
 	assert(read_only);
 	assert(!other_mmu->read_only);
@@ -232,44 +230,41 @@ void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
 	unsigned int phy_index = 0;
 	unsigned int addr = vtl_addr & PageMask;
 	unsigned int virtual_tag;
-	//printf("Address passed is %04x \n", vtl_addr);
-	printf("GPU MMU is translating from virtual address %04x \n",addr);
-    printf ("Size of this particular translation is %d \n", size);
-    //printf("\n\n");
+	unsigned int physical_addr;
+
 
 	//Map all pages in this range
 	while (addr <= (vtl_addr + size))
 	{
 		//Find existing page in other MMU and retrieve the physical index
-		//printf("Address from other mmu is %04x \n", addr);
 		other_mmu->TranslateVirtualAddress(other_address_space,addr);
 		Page *other_page = other_address_space->getPage(addr);
-		phy_index = other_page->getPhysicalAddress() >> LogPageSize;
-		//printf("Physical index is %d \n", phy_index);
-		//printf("Number of pages is %d \n",pages.size());
+		physical_addr = other_page->getPhysicalAddress();
+		phy_index = physical_addr >> LogPageSize;
 
 		if(pages.size() <= phy_index)
 		{
+			//Page doesn't exist. Create NULL pages up to
+			//and including the page to be created
+			while (pages.size() < phy_index)
+			{
+				pages.emplace_back(nullptr);
+			}
 			virtual_tag = addr & PageMask;
 			pages.emplace_back(new Page(self_address_space,virtual_tag,other_page->getPhysicalAddress()));
             Page *page = pages.back().get();
             physical_pages[page->getPhysicalAddress()] = page;
-            self_address_space->addPage(page);
             top_physical_address += PageSize;
-
-           // printf("Self address space is %04x \n", page->getPhysicalAddress());
-            //printf("Other address space is %04x \n", other_page->getPhysicalAddress());
-            //printf("\n\n");*/
         }
+		else if(physical_pages.find(physical_addr) != physical_pages.end())
+		{
+			//Page exists . Continue using it to keep stats correct
+			Page *page = physical_pages[page->getPhysicalAddress()];
+		}
 		else
 		{
-			//printf("Outside \n");
-			virtual_tag = addr & PageMask;
-			pages.emplace_back(new Page(self_address_space,virtual_tag,other_page->getPhysicalAddress()));
-			Page *page = pages.back().get();
-			physical_pages[page->getPhysicalAddress()] = page;
-			self_address_space->addPage(page);
-			top_physical_address += PageSize;
+			//Should not happen.
+			assert(0);
 		}
 
 		addr += PageSize;
