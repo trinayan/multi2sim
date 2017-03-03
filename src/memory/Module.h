@@ -267,9 +267,9 @@ private:
 	long long num_retry_directory_entry_conflicts = 0;
 
 	long long num_conflict_invalidations = 0;
+	long long gpu_evictions = 0;
 
 public:
-	
 	// Statistics for up-down accesses
 	long long num_reads = 0;
 	long long num_read_hits = 0;
@@ -292,7 +292,9 @@ public:
 	long long num_retry_nc_writes = 0;
 	long long num_retry_nc_write_hits = 0;
 	long long num_retry_nc_write_misses = 0;
-
+    long long num_gpu_l3_access = 0;
+    long long num_cpu_misses = 0;
+    long long num_gpu_misses = 0;
 	// Statistics for down-up accesses
 	long long num_read_probes = 0;
 	long long num_write_probes = 0;
@@ -641,6 +643,9 @@ public:
 	///	current frame will be available within the event handler of
 	///	\a return_event. Use \c nullptr (default) for no return event.
 	///
+	/// \param gpu_access
+	/// Identifier as to whether the access is made by a CPU or a GPU
+	/// True if the GPU is accessing the module. Otherwise False
 	/// \return frame_id
 	///	The function returns a unique identifier of the new memory
 	///	access.
@@ -648,6 +653,7 @@ public:
 	long long Access(AccessType access_type,
 			unsigned address,
 			int *witness = nullptr,
+			bool gpu_access = false,
 			esim::Event *return_event = nullptr);
 	
 	/// Add the given frame to the list of in-flight accesses, and record

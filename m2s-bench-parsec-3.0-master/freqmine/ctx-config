@@ -1,0 +1,4 @@
+[Context 0]
+Exe  = freqmine
+Args = kosrarak_500k.dat 410
+Data = data-medium

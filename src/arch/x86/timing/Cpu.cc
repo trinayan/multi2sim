@@ -139,6 +139,7 @@ void Cpu::ParseConfiguration(misc::IniFile *ini_file)
 	section = "General";
 	num_cores = ini_file->ReadInt(section, "Cores", num_cores);
 	num_threads = ini_file->ReadInt(section, "Threads", num_threads);
+	num_fast_forward_instructions = ini_file->ReadInt64(section, "FastForward",num_fast_forward_instructions);
 	context_quantum = ini_file->ReadInt(section, "ContextQuantum", 100000);
 	thread_quantum = ini_file->ReadInt(section, "ThreadQuantum", 1000);
 	thread_switch_penalty = ini_file->ReadInt(section, "ThreadSwitchPenalty", 0);
@@ -224,7 +225,7 @@ void Cpu::MemoryAccessHandler(esim::Event *event, esim::Frame *esim_frame)
 		frame->uop->memory_access = module->Access(
 				frame->access_type,
 				frame->address,
-				nullptr,
+				nullptr,false,
 				event_memory_access_end);
 	}
 	else if (event == event_memory_access_end)

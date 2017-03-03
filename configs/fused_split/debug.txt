@@ -1,0 +1,85 @@
+[Southern Islands driver] ABI call 'ProgramCreate'
+[Southern Islands driver] ABI call 'ProgramSetBinary'
+[Southern Islands driver] 	program_id = 0
+[Southern Islands driver] 	bin_ptr = 0x8201cc4
+[Southern Islands driver] 	bin_size = 113836
+[Southern Islands driver] ABI call 'KernelCreate'
+[Southern Islands driver] 	program_id = 0
+[Southern Islands driver] 	func_name = 'mmmKernel'
+[Southern Islands driver] 	metadata symbol: offset=0x0, size=499
+[Southern Islands driver] 	header symbol: offset=0x1f3, size=32
+[Southern Islands driver] 	kernel symbol: offset=0x0, size=23860
+[Southern Islands driver] 	;device:tahiti
+[Southern Islands driver] 	;uniqueid:1024
+[Southern Islands driver] 	;memory:uavprivate:0
+[Southern Islands driver] 	;memory:hwregion:0
+[Southern Islands driver] 	;memory:hwlocal:0
+[Southern Islands driver] 	;pointer:matrixA:float:1:1:0:uav:10:16:RO:0:0
+[Southern Islands driver] 	argument 'matrixA' - Pointer stored in constant buffer 1 at offset 0
+[Southern Islands driver] 	;pointer:matrixB:float:1:1:16:uav:11:16:RO:0:0
+[Southern Islands driver] 	argument 'matrixB' - Pointer stored in constant buffer 1 at offset 16
+[Southern Islands driver] 	;pointer:matrixC:float:1:1:32:uav:12:16:RW:0:0
+[Southern Islands driver] 	argument 'matrixC' - Pointer stored in constant buffer 1 at offset 32
+[Southern Islands driver] 	;value:widthA:u32:1:1:48
+[Southern Islands driver] 	argument 'widthA' - value stored in constant buffer 1 at offset 48
+[Southern Islands driver] 	;value:widthB:u32:1:1:64
+[Southern Islands driver] 	argument 'widthB' - value stored in constant buffer 1 at offset 64
+[Southern Islands driver] 	;function:1:1033
+[Southern Islands driver] 	;privateid:8
+[Southern Islands driver] 	;reflection:0:float4*
+[Southern Islands driver] 	;reflection:1:float4*
+[Southern Islands driver] 	;reflection:2:float4*
+[Southern Islands driver] 	;reflection:3:uint
+[Southern Islands driver] 	;reflection:4:uint
+[Southern Islands driver] 	;ARGEND:__OpenCL_mmmKernel_kernel
+[Southern Islands driver] ABI call 'KernelSetArgPointer'
+[Southern Islands driver] 	kernel_id=0, index=0
+[Southern Islands driver] 	device_ptr=0x81d8000, size=16384
+[Southern Islands driver] 	name=matrixA
+[Southern Islands driver] ABI call 'KernelSetArgPointer'
+[Southern Islands driver] 	kernel_id=0, index=1
+[Southern Islands driver] 	device_ptr=0x81dd000, size=16384
+[Southern Islands driver] 	name=matrixB
+[Southern Islands driver] ABI call 'KernelSetArgPointer'
+[Southern Islands driver] 	kernel_id=0, index=2
+[Southern Islands driver] 	device_ptr=0x81e2000, size=16384
+[Southern Islands driver] 	name=matrixC
+[Southern Islands driver] ABI call 'KernelSetArgValue'
+[Southern Islands driver] 	kernel_id=0, index=3
+[Southern Islands driver] 	host_ptr=0xbffefeec, size=4
+[Southern Islands driver] 	name=widthA
+[Southern Islands driver] ABI call 'KernelSetArgValue'
+[Southern Islands driver] 	kernel_id=0, index=4
+[Southern Islands driver] 	host_ptr=0xbffefef8, size=4
+[Southern Islands driver] 	name=widthB
+[Southern Islands driver] ABI call 'NDRangeSetFused'
+[Southern Islands driver] 	fused
+[Southern Islands driver] ABI call 'NDRangeCreate'
+[Southern Islands driver] 	kernel_id=0, work_dim=2
+[Southern Islands driver] 	global_offset_ptr=0x81e1398, global_size_ptr=0x81e13a4, local_size_ptr=0x81e13b0
+[Southern Islands driver] 	global_offset[0] = 0
+[Southern Islands driver] 	global_offset[1] = 0
+[Southern Islands driver] 	global_size[0] = 16
+[Southern Islands driver] 	global_size[1] = 16
+[Southern Islands driver] 	local_size[0] = 8
+[Southern Islands driver] 	local_size[1] = 8
+[Southern Islands driver] 	created ndrange 0
+[Southern Islands driver] ABI call 'NDRangePassMemObjs'
+[Southern Islands driver] 	Mapping uav 10, addr( 0x81d8000),size 16384 
+[Southern Islands driver] 	Mapping uav 11, addr( 0x81dd000),size 16384 
+[Southern Islands driver] 	Mapping uav 12, addr( 0x81e2000),size 16384 
+[Southern Islands driver] 	arg[0] = matrixA [Southern Islands driver] (0x81d8000)[Southern Islands driver] 
+[Southern Islands driver] 	arg[1] = matrixB [Southern Islands driver] (0x81dd000)[Southern Islands driver] 
+[Southern Islands driver] 	arg[2] = matrixC [Southern Islands driver] (0x81e2000)[Southern Islands driver] 
+[Southern Islands driver] 	arg[3] = widthA [Southern Islands driver] 
+[Southern Islands driver] 	arg[4] = widthB [Southern Islands driver] 
+[Southern Islands driver] ABI call 'NDRangeStart'
+[Southern Islands driver] ABI call 'NDRangeSendWorkGroups'
+[Southern Islands driver] 	ndrange 0
+[Southern Islands driver] 	receiving 4 work groups: (0) through (3)
+[Southern Islands driver] ABI call 'NDRangeFinish'
+[Southern Islands driver] 	waiting for nd-range 0 to finish (blocking)
+[Southern Islands driver] ABI call 'NDRangeFlush'
+[Southern Islands driver] 	ndrange 0
+[Southern Islands driver] ABI call 'NDRangeEnd'
+[Southern Islands driver] ABI call 'NDRangeFree'

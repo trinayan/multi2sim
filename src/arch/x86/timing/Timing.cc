@@ -293,11 +293,13 @@ bool Timing::Run()
 	< Cpu::getNumFastForwardInstructions())
 		FastForward();
 
+
 	//Optionally fast-forward if opencl is not being executed
 	if (opencl_fast_forward && !si_emulator->getNDRangesRunning() && !esim_engine->hasFinished())
 	{
 		FastForwardOpenCL();
 	}
+
 
 	// Stop if maximum number of CPU instructions exceeded
 	if (Emulator::getMaxInstructions()
@@ -338,12 +340,15 @@ void Timing::FastForward()
 	while (emulator->getNumInstructions()
 			< Cpu::getNumFastForwardInstructions()
 	&& !esim_engine->hasFinished())
-		emulator->Run();
+	{
 
+		emulator->Run();
+	}
 	// Output warning if simulation finished during fast-forward execution
 	if (esim_engine->hasFinished())
 		misc::Warning("x86 fast-forwarding finished simulation.\n%s",
 				Timing::error_fast_forward);
+	printf("Fast forward ended \n");
 }
 
 void Timing::FastForwardOpenCL()
@@ -352,13 +357,14 @@ void Timing::FastForwardOpenCL()
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 
+
 	//Set the flush variable to 1 so that we dont fetch
 	cpu->setFlushing(1);
+	printf("Entering opencl fast forward. Number instruction is %lld \n", emulator->getNumInstructions());
 
 	//Clear the pipelines
 	for(int i=0; i < Cpu::getNumCores();i++)
 	{
-
 		Core *core = cpu->getCore(i);
 		Alu  *alu  = core->getAlu();
 		for(int j=0; j< Cpu::getNumThreads();j++)
@@ -443,6 +449,7 @@ void Timing::FastForwardOpenCL()
 		    }
 		}
 }
+	printf("ending opencl fast forward. Number instruction is %lld \n", emulator->getNumInstructions());
 
 }
 

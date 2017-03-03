@@ -1,0 +1,6 @@
+# cpp files
+*.a
+*.o
+
+# tarball file
+*.tar.gz

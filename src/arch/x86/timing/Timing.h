@@ -70,7 +70,6 @@ class Timing : public comm::Timing
 
 	// Frequency of memory system in MHz
 	static int frequency;
-	static bool opencl_fast_forward;
 	
 	
 	//
@@ -104,6 +103,7 @@ public:
 		}
 	};
 
+	static bool opencl_fast_forward;
 
 
 

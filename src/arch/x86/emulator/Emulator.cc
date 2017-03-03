@@ -425,6 +425,9 @@ bool Emulator::Run()
 {
 	// Stop if there is no more contexts
 
+	if((num_instructions % 100000000) == 0)
+		printf("Number of instructions %lld \n",num_instructions);
+
 	if (!contexts.size())
 		return false;
 

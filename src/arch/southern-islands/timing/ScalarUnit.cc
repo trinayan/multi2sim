@@ -526,7 +526,7 @@ void ScalarUnit::Execute()
 			// Submit the access
 			compute_unit->scalar_cache->Access(
 					mem::Module::AccessType::AccessLoad,
-					phys_addr, &uop->global_memory_witness);
+					phys_addr, &uop->global_memory_witness,true);
 
 			// Trace
 			Timing::trace << misc::fmt("si.inst "

@@ -116,7 +116,7 @@ unsigned Mmu::TranslateVirtualAddress(Space *space,
 		unsigned virtual_address)
 {
 	// Space must belong to current MMU
-	assert(space->getMmu() == this);
+	//assert(space->getMmu() == this);
 
 	// Calculate tag and offset
 	unsigned virtual_tag = virtual_address & PageMask;

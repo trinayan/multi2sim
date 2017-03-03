@@ -1,0 +1,7 @@
+[ Context 0 ]
+Exe = MatrixMultiplication_static
+Args = --load MatrixMultiplication_Kernels.bin -q
+
+[ Context 1 ]
+Exe  = mcf_base.i386 
+Args = inp.in

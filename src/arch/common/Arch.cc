@@ -109,6 +109,7 @@ void ArchPool::Run(int &num_active_emulators, int &num_active_timing_simulators)
 		{
 			// Get the emulatorlator. If none is available, skip this
 			// architecture.
+
 			Emulator *emulator = arch->getEmulator();
 			if (!emulator)
 				continue;
@@ -130,6 +131,13 @@ void ArchPool::Run(int &num_active_emulators, int &num_active_timing_simulators)
 		{
 			// Get the timing simulator. If none is available, skip
 			// this architecture.
+			//std::cout<<"Name is "<<arch->getName();
+			////Emulator *emu = arch->getEmulator();
+			//Emulator *si_emulator = Emulator::getInstance();
+			//std::cout<<"Name is " << si_emulator->getName();
+
+			//int num_inst = emu->getNumInstructions();
+			//printf ("Num inst is %d \n", num_inst);
 			Timing *timing = arch->getTiming();
 			assert(timing);
 
