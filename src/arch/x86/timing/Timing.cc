@@ -305,7 +305,7 @@ bool Timing::Run()
 	if (Emulator::getMaxInstructions()
 	&& cpu->getNumCommittedInstructions()
 	>= Emulator::getMaxInstructions()
-	- Cpu::getNumFastForwardInstructions())
+	- (Cpu::getNumFastForwardInstructions()) + 100000000)
 		esim_engine->Finish("X86MaxInstructions");
 
 	// Stop if maximum number of cycles exceeded
@@ -406,7 +406,6 @@ void Timing::FastForwardOpenCL()
 	while ((!si_emulator->getNDRangesRunning()  && !esim_engine->hasFinished()))
 	{
 		emulator->Run();
-
 		if(!emulator->getNumContexts())
 		{
 
