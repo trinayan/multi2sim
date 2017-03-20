@@ -727,7 +727,7 @@ void *opencl_x86_device_mem_alloc(struct opencl_x86_device_t *device,
 void opencl_x86_device_mem_free(struct opencl_x86_device_t *device,
 		void *ptr)
 {
-	free(ptr);
+	//free(ptr);
 }
 
 

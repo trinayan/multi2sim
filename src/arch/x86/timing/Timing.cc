@@ -352,6 +352,8 @@ void Timing::FastForwardOpenCL()
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 
+	printf("Entering opencl fast forward at %d \n", emulator->getNumInstructions());
+
 	//Set the flush variable to 1 so that we dont fetch
 	cpu->setFlushing(1);
 
@@ -443,6 +445,7 @@ void Timing::FastForwardOpenCL()
 		    }
 		}
 }
+	printf("Ending opencl fast forward at %d\n", emulator->getNumInstructions());
 
 }
 
