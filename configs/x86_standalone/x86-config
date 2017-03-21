@@ -1,0 +1,5 @@
+[ General ]
+Frequency = 3000
+Cores = 1
+Threads = 1
+FastForward = 19400000000

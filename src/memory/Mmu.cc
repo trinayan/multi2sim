@@ -242,11 +242,11 @@ void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
 		physical_addr = other_page->getPhysicalAddress();
 		phy_index = physical_addr >> LogPageSize;
 
-		if(pages.size() <= phy_index)
+		if(pages.size() <= phy_index+1)
 		{
 			//Page doesn't exist. Create NULL pages up to
 			//and including the page to be created
-			while (pages.size() < phy_index)
+			while (pages.size() <= phy_index+1)
 			{
 				pages.emplace_back(nullptr);
 			}
@@ -259,11 +259,13 @@ void Mmu::MMUCopyTranslation(Space *self_address_space, Mmu *other_mmu,
 		else if(physical_pages.find(physical_addr) != physical_pages.end())
 		{
 			//Page exists . Continue using it to keep stats correct
-			Page *page = physical_pages[page->getPhysicalAddress()];
+			auto it = physical_pages.find (physical_addr);
+			Page *page = it->second;
 		}
 		else
 		{
 			//Should not happen.
+
 			assert(0);
 		}
 

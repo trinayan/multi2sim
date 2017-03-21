@@ -1,0 +1,81 @@
+[General]
+Frequency = 3000
+
+;32KB x86 L1 data cache (1 per  core)
+[CacheGeometry geo-x86-l1-data]
+Sets = 256
+Assoc = 2
+BlockSize = 64
+Latency = 1
+
+; 32KB x86 L1 instruction cache (1 per core)
+[ CacheGeometry geo-x86-l1-inst ]
+Sets = 256
+Assoc = 2
+BlockSize = 64
+Latency = 1
+
+; 256KB x86 L2 cache (1 per core)
+[ CacheGeometry geo-x86-l2 ]
+Sets = 512
+Assoc = 8
+BlockSize = 64
+
+[ Module mod-l3 ]
+Type = Cache
+Geometry = geo-l3
+HighNetwork = net-l2-l3
+LowNetwork = net-l3-mm
+LowModules = mod-shared-mm
+
+; ---- x86 L2 Caches ----
+
+[ Module mod-x86-l2 ]
+Type = Cache
+Geometry = geo-x86-l2
+HighNetwork = net-l1-l2
+LowNetwork = net-l2-l3
+LowModules = mod-l3
+
+;---- x86 L1 Caches------
+
+[Module mod-x86-l1-data ]
+Type = Cache
+Geometry = geo-x86-l1-data
+LowNetwork = net-l1-l2
+LowModules = mod-x86-l2
+
+[ Module mod-x86-l1-inst ]
+Type = Cache
+Geometry = geo-x86-l1-inst
+LowNetwork = net-l1-l2
+LowModules = mod-x86-l2
+
+
+; ---- Associating x86 cores with L1s ----
+
+[ Entry x86-core-0 ]
+Arch = x86
+Core = 0
+Thread = 0
+DataModule = mod-x86-l1-data
+InstModule = mod-x86-l1-inst
+
+
+;----Network from l3 to mm------------
+[Network net-l3-mm ]
+DefaultInputBufferSize = 1024
+DefaultOutputBufferSize = 1024
+DefaultBandwidth       = 256
+
+;----Network from l2 to l3------------
+[Network net-l2-l3 ]
+DefaultInputBufferSize = 1024
+DefaultOutputBufferSize = 1024
+DefaultBandwidth       = 256
+
+;-----Network from l1 to l2-----------
+[Network net-l1-l2]
+DefaultInputBufferSize = 1024
+DefaultOutputBufferSize = 1024
+DefaultBandwidth       = 256

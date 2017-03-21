@@ -97,8 +97,8 @@ std::string m2s_trace_file;
 // Visualization tool input file
 std::string m2s_visual_file;
 
-
-
+// Number of instructions ater which a gpu program is loaded
+long long m2s_load_gpu = 0;
 
 //
 // Global variables
@@ -124,10 +124,10 @@ void WelcomeMessage(std::ostream &os)
 	unsigned min_id = misc::StringAlnumToInt("10000");
 	unsigned max_id = misc::StringAlnumToInt("ZZZZZ");
 	unsigned id = (tv.tv_sec * 1000000000 + tv.tv_usec)
-			% (max_id - min_id + 1)
-			+ min_id;
+					% (max_id - min_id + 1)
+					+ min_id;
 	std::string alnum_id = misc::StringIntToAlnum(id);
-	
+
 	// Blue color
 	misc::Terminal::Blue(os);
 
@@ -137,7 +137,7 @@ void WelcomeMessage(std::ostream &os)
 	os << "; Please use command 'm2s --help' for a list of command-line options.\n";
 	os << "; Simulation alpha-numeric ID: " << alnum_id << '\n';
 	os << '\n';
-	
+
 	// Reset terminal color
 	misc::Terminal::Reset(os);
 }
@@ -153,7 +153,7 @@ void LoadProgram(const std::vector<std::string> &arguments,
 	// Skip if no program specified
 	if (arguments.size() == 0)
 		return;
-	
+
 	// Choose emulator based on ELF header
 	std::string exe = misc::getFullPath(arguments[0], current_directory);
 	ELFReader::File elf_file(exe, false);
@@ -203,7 +203,7 @@ void LoadPrograms()
 
 	// Load contexts
 	misc::IniFile ini_file(m2s_context_config);
-	for (int index = 0; ; index++)
+	for (int index = 1; ; index++)
 	{
 		// Stop if section does not exist
 		std::string section = misc::fmt("Context %d", index);
@@ -215,7 +215,7 @@ void LoadPrograms()
 		std::string current_directory = ini_file.ReadString(section, "Cwd");
 		std::string stdin_file_name = ini_file.ReadString(section, "Stdin");
 		std::string stdout_file_name = ini_file.ReadString(section, "Stdout");
-		
+
 		// Arguments
 		std::vector<std::string> arguments;
 		std::string args_str = ini_file.ReadString(section, "Args");
@@ -255,12 +255,12 @@ void RegisterOptions()
 			"optionally followed by its arguments <args>. The "
 			"following list of command-line options can be used "
 			"for <options>:");
-	
+
 
 	//
 	// General Multi2Sim Options
 	//
-	
+
 	// Set category for following options
 	command_line->setCategory("default", "General Multi2Sim Options");
 
@@ -279,26 +279,26 @@ void RegisterOptions()
 			"their arguments, and environment variables. Use option "
 			"--ctx-config-help for a description of the context "
 			"configuration file format.");
-	
+
 	// Debugger for event-driven simulator
 	command_line->RegisterString("--esim-debug <file>",
 			m2s_debug_esim,
 			"Dump debug information related with the event-driven "
 			"simulation engine.");
-	
+
 	// Debugger for Inifile parser
 	command_line->RegisterString("--inifile-debug <file>",
 			m2s_debug_inifile,
 			"Dump debug information about all processed INI files "
 			"into the specified path.");
-	
+
 	// Maximum simulation time
 	command_line->RegisterInt64("--max-time <time> (default = 0)",
 			m2s_max_time,
 			"Maximum simulation time in seconds. The simulator "
 			"will stop once this time is exceeded. A value of 0 "
 			"(default) means no time limit.");
-	
+
 	// Trace file
 	command_line->RegisterString("--trace <file>",
 			m2s_trace_file,
@@ -309,7 +309,7 @@ void RegisterOptions()
 			"user should watch the size of the generated trace as "
 			"simulation runs, since the trace file can quickly "
 			"become extremely large.");
-	
+
 	// Visualization tool input file
 	command_line->RegisterString("--visual <file>",
 			m2s_visual_file,
@@ -333,7 +333,7 @@ void RegisterOptions()
 			"information related with CUDA ABI calls. This option "
 			"is equivalent to environment variable M2S_CUDA_DEBUG.");
 
-	
+
 	//
 	// OpenCL runtime options
 	//
@@ -348,7 +348,7 @@ void RegisterOptions()
 			"information related with OpenCL API calls. This "
 			"option is equivalent to environment variable "
 			"M2S_OPENCL_DEBUG.");
-	
+
 	// Device list
 	command_line->RegisterString("--opencl-devices <list>",
 			m2s_opencl_devices,
@@ -359,7 +359,7 @@ void RegisterOptions()
 			"environment variable M2S_OPENCL_DEVICES. "
 			"Possible values are: x86, southern-islands, "
 			"union.");
-	
+
 	// Binary
 	command_line->RegisterString("--opencl-binary <file>",
 			m2s_opencl_binary,
@@ -367,7 +367,13 @@ void RegisterOptions()
 			"application executing a call to "
 			"clCreateProgramWithSource. This option is equivalent "
 			"to environment variable M2S_OPENCL_BINARY.");
-	
+
+	//Number of x86 instructions after which the opencl program is loaded
+	command_line->RegisterInt64("--x86-load-gpu <number of instructions>",
+			m2s_load_gpu,
+			"Number of x86 instructions after which the GPU program is"
+			"loaded. Useful if you want to launch the gpu program midway through the simulation");
+
 }
 
 
@@ -395,11 +401,11 @@ void ProcessOptions()
 	// OpenCL runtime debug
 	if (!m2s_opencl_debug.empty())
 		environment->addVariable("M2S_OPENCL_DEBUG", m2s_opencl_debug);
-	
+
 	// OpenCL device list
 	if (!m2s_opencl_devices.empty())
 		environment->addVariable("M2S_OPENCL_DEVICES", m2s_opencl_devices);
-	
+
 	// OpenCL binary
 	if (!m2s_opencl_binary.empty())
 		environment->addVariable("M2S_OPENCL_BINARY", m2s_opencl_binary);
@@ -414,7 +420,6 @@ void ProcessOptions()
 	// Visualization
 	if (!m2s_visual_file.empty())
 		visual_run(m2s_visual_file.c_str());
-		
 }
 
 
@@ -465,6 +470,49 @@ void MainLoop()
 	// Simulation loop
 	while (!esim->hasFinished())
 	{
+		if(m2s_load_gpu > 0)
+		{
+			comm::Emulator *emulator;
+			emulator = x86::Emulator::getInstance();
+			x86::Timing *timing;
+			timing = x86::Timing::getInstance();
+			if(emulator->getNumInstructions() > m2s_load_gpu)
+			{
+				std::string section = misc::fmt("Context %d", 0);
+				misc::IniFile ini_file(m2s_context_config);
+
+				if (!ini_file.Exists(section))
+					break;
+
+				// Load
+				std::string exe = ini_file.ReadString(section, "Exe");
+				std::string current_directory = ini_file.ReadString(section, "Cwd");
+				std::string stdin_file_name = ini_file.ReadString(section, "Stdin");
+				std::string stdout_file_name = ini_file.ReadString(section, "Stdout");
+
+				// Arguments
+				std::vector<std::string> arguments;
+				std::string args_str = ini_file.ReadString(section, "Args");
+				misc::StringTokenize(args_str, arguments);
+				arguments.insert(arguments.begin(), exe);
+
+				// Environment variables
+				std::vector<std::string> environment;
+				std::string env_str = ini_file.ReadString(section, "Env");
+				misc::Environment::getFromString(env_str, environment);
+
+				// Load program
+				LoadProgram(arguments,
+						environment,
+						current_directory,
+						stdin_file_name,
+						stdout_file_name);
+				timing->opencl_fast_forward = 1;
+				m2s_load_gpu = 0;
+
+			}
+		}
+
 		// Run iteration for all architectures. This function returns
 		// the number of architectures actively running emulation, as
 		// well as the number of architectures running an active timing
@@ -509,7 +557,7 @@ void DumpStatisticsSummary(std::ostream &os = std::cerr)
 	// No summary dumped if no simulation was run
 	if (m2s_loop_iterations < 2)
 		return;
-	
+
 	// Print in blue
 	misc::Terminal::Blue(os);
 
@@ -613,7 +661,7 @@ int MainProgram(int argc, char **argv)
 	// command-line option was not recognized.
 	misc::CommandLine *command_line = misc::CommandLine::getInstance();
 	command_line->Process(argc, argv, false);
-	
+
 	// Process command line
 	ProcessOptions();
 	HSA::Disassembler::ProcessOptions();
@@ -651,19 +699,19 @@ int MainProgram(int argc, char **argv)
 	{
 		if (net::System::isStandAlone() || dram::System::isStandAlone())
 			throw misc::Error("Cannot have both "
-						"stand-alone and detailed "
-						"simulation active at the same "
-						"time");
+					"stand-alone and detailed "
+					"simulation active at the same "
+					"time");
 	}
 	else
 	{
 		if (net::System::isStandAlone() && dram::System::isStandAlone())
 			throw misc::Error("Cannot have both "
-						"stand-alone and detailed "
-						"simulation active at the same "
-						"time");
+					"stand-alone and detailed "
+					"simulation active at the same "
+					"time");
 	}
-			
+
 	if (arch_pool->getNumTiming())
 	{
 		// We need to load the network configuration file prior to
@@ -700,7 +748,7 @@ int MainProgram(int argc, char **argv)
 
 	// Load programs
 	LoadPrograms();
-		
+
 	// Main simulation loop
 	MainLoop();
 

@@ -1212,13 +1212,16 @@ bool Timing::Run()
 		esim_engine->Finish("SIMaxInstructions");
 
 	// Stop if there was a simulation stall
-	if (getCycle() - gpu->last_complete_cycle > 1000000)
+	//FIXME: Currently commented out because the SI simulator is running
+	//by the time the gpu program is loaded
+	//This will be fixed
+	/*if (getCycle() - gpu->last_complete_cycle > 1000000)
 	{
 		std::cout<<"\n\n************TOO LONG******************\n\n";
 		//warning("Southern Islands GPU simulation stalled.\n%s",
 		//	si_err_stall);
 		esim_engine->Finish("SIStall");
-	}
+	}*/
 
 	// Stop if any reason met
 	if (esim_engine->hasFinished())

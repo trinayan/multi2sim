@@ -70,9 +70,9 @@ class Timing : public comm::Timing
 
 	// Frequency of memory system in MHz
 	static int frequency;
-	static bool opencl_fast_forward;
 	
 	
+
 	//
 	// Class members
 	//
@@ -110,6 +110,8 @@ public:
 	//
 	// Static members
 	//
+    ///FIXME:Opencl fast forward made public. May want to make it private later.
+	static bool opencl_fast_forward;
 
 	/// Return unique instance of the X86 timing simulator singleton.
 	static Timing *getInstance();
