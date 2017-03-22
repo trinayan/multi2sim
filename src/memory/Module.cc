@@ -162,6 +162,7 @@ bool Module::canAccess(int address) const
 long long Module::Access(AccessType access_type,
 		unsigned address,
 		int *witness,
+		bool gpu_access,
 		esim::Event *return_event)
 {
 	// Create a new event frame
@@ -170,6 +171,9 @@ long long Module::Access(AccessType access_type,
 			this,
 			address);
 	frame->witness = witness;
+
+	if(gpu_access)
+		frame->gpu_access=true;
 
 	// Select initial event type
 	esim::Event *event;
@@ -767,6 +771,7 @@ void Module::Dump(std::ostream &os) const
 
 void Module::DumpReport(std::ostream &os) const
 {
+
 	// Dumping module's name
 	os << misc::fmt("[ %s ]\n\n", name.c_str());
 
@@ -794,7 +799,8 @@ void Module::DumpReport(std::ostream &os) const
 			num_coalesced_writes + num_coalesced_nc_writes);
 	os << misc::fmt("RetriedAccesses = %lld\n", num_retry_accesses);
 	os << misc::fmt("Evictions = %lld\n", num_evictions);
-
+	os << misc::fmt("GPU L3 cache access = %lld\n", num_gpu_l3_access);
+	os <<misc::fmt("No of CPU blocks evicted by GPU = %lld \n", gpu_evictions);
 	// Statistics - Hits and misses
 	long long int num_hits = num_read_hits + num_write_hits 
 			+ num_nc_write_hits;
@@ -1079,9 +1085,8 @@ void Module::LockPort(Frame *frame, esim::Event *event)
 
 void Module::UnlockPort(Port *port, Frame *frame)
 {
-	// Checks
-	assert(num_locked_ports > 0);
-	assert(frame->port && port->frame);
+
+
 	assert(frame->port == port && port->frame == frame);
 	assert(frame->getModule() == this);
 
@@ -1248,8 +1253,27 @@ void Module::FlushCache()
 
 void Module::UpdateStats(Frame *frame)
 {
+
 	// Assert that the frame module is in fact the module
 	assert(this == frame->getModule());
+	std::string str1 ("mod-shared-l3");
+	std::string str2 (this->getName());
+
+	if(str1.compare(str2) == 0 && frame->gpu_access)
+		num_gpu_l3_access++;
+
+	if(frame->gpu_evicting_cpu == 1)
+		gpu_evictions++;
+
+	if(frame->request_direction == Frame::RequestDirectionUpDown)
+	{
+		if(frame->read && !frame->gpu_access)
+		{
+		  if(!frame->hit)
+			  num_cpu_misses++;
+		}
+
+	}
 
 	// Record access type. I purposefully chose to record both hits and
 	// misses separately here so that we can sanity check them against

@@ -225,7 +225,7 @@ void Cpu::MemoryAccessHandler(esim::Event *event, esim::Frame *esim_frame)
 		frame->uop->memory_access = module->Access(
 				frame->access_type,
 				frame->address,
-				nullptr,
+				nullptr,false,
 				event_memory_access_end);
 	}
 	else if (event == event_memory_access_end)

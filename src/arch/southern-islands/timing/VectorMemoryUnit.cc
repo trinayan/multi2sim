@@ -360,7 +360,7 @@ void VectorMemoryUnit::Memory()
 					compute_unit->vector_cache->Access(
 							module_access_type,
 							physical_address, 
-							&uop->global_memory_witness);
+							&uop->global_memory_witness, true);
 					work_item_info->accessed_cache = true;
 
 					// Access global memory

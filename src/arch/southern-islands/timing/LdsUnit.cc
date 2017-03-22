@@ -326,7 +326,7 @@ void LdsUnit::Mem()
 				compute_unit->getLdsModule()->Access(
 						access_type,
 						work_item_info->lds_access[i].addr,
-						&uop->lds_witness);
+						&uop->lds_witness,true);
 				uop->lds_witness--;
 			}
 		}

@@ -219,6 +219,8 @@ void System::EventLoadHandler(esim::Event *event, esim::Frame *esim_frame)
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+			new_frame->gpu_access = true;
 		new_frame->request_direction = Frame::RequestDirectionUpDown;
 		new_frame->blocking = true;
 		new_frame->read = true;
@@ -274,6 +276,8 @@ void System::EventLoadHandler(esim::Event *event, esim::Frame *esim_frame)
 				frame->getId(),
 				module,
 				frame->tag);
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->target_module = module->getLowModuleServingAddress(frame->tag);
 		new_frame->request_direction = Frame::RequestDirectionUpDown;
 		esim_engine->Call(event_read_request,
@@ -326,6 +330,7 @@ void System::EventLoadHandler(esim::Event *event, esim::Frame *esim_frame)
 		cache->setBlock(frame->set,
 				frame->way,
 				frame->tag,
+				frame->gpu_access,
 				frame->shared ? Cache::BlockShared : Cache::BlockExclusive);
 
 		// Continue
@@ -505,6 +510,8 @@ void System::EventStoreHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->request_direction = Frame::RequestDirectionUpDown;
 		new_frame->blocking = true;
 		new_frame->write = true;
@@ -563,6 +570,8 @@ void System::EventStoreHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->target_module = module->getLowModuleServingAddress(frame->tag);
 		new_frame->request_direction = Frame::RequestDirectionUpDown;
 		new_frame->witness = frame->witness;
@@ -623,7 +632,7 @@ void System::EventStoreHandler(esim::Event *event,
 		}
 
 		// Update tag/state
-		cache->setBlock(frame->set, frame->way, frame->tag,
+		cache->setBlock(frame->set, frame->way, frame->tag,frame->gpu_access,
 				Cache::BlockModified);
 
 		// Unlock directory entry
@@ -781,6 +790,8 @@ void System::EventNCStoreHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->request_direction = Frame::RequestDirectionUpDown;
 		new_frame->blocking = true;
 		new_frame->nc_write = true;
@@ -835,6 +846,8 @@ void System::EventNCStoreHandler(esim::Event *event,
 					frame->getId(),
 					module,
 					0);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->set = frame->set;
 			new_frame->way = frame->way;
 			esim_engine->Call(event_evict,
@@ -911,6 +924,8 @@ void System::EventNCStoreHandler(esim::Event *event,
 					frame->getId(),
 					module,
 					frame->tag);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->message_type = Frame::MessageClearOwner;
 			new_frame->target_module = module->getLowModuleServingAddress(frame->tag);
 			esim_engine->Call(event_message,
@@ -931,6 +946,8 @@ void System::EventNCStoreHandler(esim::Event *event,
 					frame->getId(),
 					module,
 					frame->tag);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->nc_write = true;
 			new_frame->target_module = module->getLowModuleServingAddress(frame->tag);
 			new_frame->request_direction = Frame::RequestDirectionUpDown;
@@ -1008,7 +1025,7 @@ void System::EventNCStoreHandler(esim::Event *event,
 
 		// Set block state to E/S depending on return var 'shared'.
 		// Also set the tag of the block.
-		cache->setBlock(frame->set, frame->way, frame->tag,
+		cache->setBlock(frame->set, frame->way, frame->tag,frame->gpu_access,
 				Cache::BlockNonCoherent);
 
 		// Unlock directory entry
@@ -1163,7 +1180,7 @@ void System::EventFindAndLockHandler(esim::Event *event,
 			// for it.
 			if (frame->request_direction == Frame::RequestDirectionDownUp)
 			{
-				debug << misc::fmt("        A-%lld "
+				debug << misc::fmt("A-%lld "
 						"block not found",
 						frame->getId());
 				parent_frame->block_not_found = true;
@@ -1175,7 +1192,14 @@ void System::EventFindAndLockHandler(esim::Event *event,
 
 			// Find a victim to evict, only in up-down accesses.
 			assert(!frame->way);
+			int replacement_block = cache->FindAccessingDevice(frame->set);
+			//if(frame->gpu_access && cache->getName() == "mod-shared-l3" )
+			if(frame->gpu_access && replacement_block == 2 && cache->getName() == "mod-shared-l3")
+				frame->gpu_evicting_cpu = 1;
+
 			frame->way = cache->ReplaceBlock(frame->set);
+
+
 		}
 		assert(frame->way >= 0);
 
@@ -1325,6 +1349,8 @@ void System::EventFindAndLockHandler(esim::Event *event,
 					frame->getId(),
 					module,
 					0);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->set = frame->set;
 			new_frame->way = frame->way;
 			esim_engine->Call(event_evict,
@@ -1394,7 +1420,7 @@ void System::EventFindAndLockHandler(esim::Event *event,
 					frame->state == Cache::BlockExclusive);
 
 			// After an eviction, set the block to invalid
-			cache->setBlock(frame->set, frame->way, 0,
+			cache->setBlock(frame->set, frame->way, 0, frame->gpu_access,
 					Cache::BlockInvalid);
 		}
 
@@ -1404,7 +1430,7 @@ void System::EventFindAndLockHandler(esim::Event *event,
 				&& !frame->state)
 		{
 			frame->state = Cache::BlockExclusive;
-			cache->setBlock(frame->set, frame->way, frame->tag,
+			cache->setBlock(frame->set, frame->way, frame->tag, frame->gpu_access,
 					frame->state);
 		}
 
@@ -1474,6 +1500,8 @@ void System::EventEvictHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				0);
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->except_module = nullptr;
 		new_frame->set = frame->set;
 		new_frame->way = frame->way;
@@ -1511,6 +1539,7 @@ void System::EventEvictHandler(esim::Event *event,
 			cache->setBlock(frame->src_set,
 					frame->src_way,
 					0,
+					frame->gpu_access,
 					Cache::BlockInvalid);
 
 			// Continue with 'evict-finish'
@@ -1614,6 +1643,8 @@ void System::EventEvictHandler(esim::Event *event,
 				frame->getId(),
 				target_module,
 				frame->src_tag);
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->blocking = false;
 		new_frame->request_direction = Frame::RequestDirectionDownUp;
 		new_frame->write = true;
@@ -1665,6 +1696,7 @@ void System::EventEvictHandler(esim::Event *event,
 				target_cache->setBlock(frame->set,
 						frame->way,
 						frame->tag,
+						frame->gpu_access,
 						Cache::BlockModified);
 			}
 			else if (frame->state == Cache::BlockModified)
@@ -1759,6 +1791,7 @@ void System::EventEvictHandler(esim::Event *event,
 				target_cache->setBlock(frame->set,
 						frame->way,
 						frame->tag,
+						frame->gpu_access,
 						Cache::BlockModified);
 				break;
 			
@@ -1774,6 +1807,7 @@ void System::EventEvictHandler(esim::Event *event,
 				target_cache->setBlock(frame->set,
 						frame->way,
 						frame->tag,
+						frame->gpu_access,
 						Cache::BlockNonCoherent);
 				break;
 			
@@ -1894,6 +1928,7 @@ void System::EventEvictHandler(esim::Event *event,
 			cache->setBlock(frame->src_set,
 					frame->src_way,
 					0,
+					frame->gpu_access,
 					Cache::BlockInvalid);
 		
 		// Sanity
@@ -2036,6 +2071,8 @@ void System::EventWriteRequestHandler(esim::Event *event,
 				frame->getId(),
 				target_module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->blocking = frame->request_direction ==
 				Frame::RequestDirectionDownUp;
 		new_frame->request_direction = frame->request_direction;
@@ -2104,6 +2141,8 @@ void System::EventWriteRequestHandler(esim::Event *event,
 				frame->getId(),
 				target_module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->except_module = module;
 		new_frame->set = frame->set;
 		new_frame->way = frame->way;
@@ -2180,6 +2219,8 @@ void System::EventWriteRequestHandler(esim::Event *event,
 					frame->getId(),
 					target_module,
 					frame->tag);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->target_module = target_module->
 					getLowModuleServingAddress(frame->tag);
 			new_frame->request_direction = Frame::RequestDirectionUpDown;
@@ -2283,6 +2324,7 @@ void System::EventWriteRequestHandler(esim::Event *event,
 		target_cache->setBlock(frame->set,
 				frame->way,
 				frame->tag,
+				frame->gpu_access,
 				Cache::BlockExclusive);
 
 		// If blocks were sent directly to the peer, the reply size 
@@ -2378,7 +2420,7 @@ void System::EventWriteRequestHandler(esim::Event *event,
 				target_module->getName().c_str());
 
 		// Set state to I
-		target_cache->setBlock(frame->set, frame->way, 0,
+		target_cache->setBlock(frame->set, frame->way, 0,frame->gpu_access,
 				Cache::BlockInvalid);
 
 		// Unlock directory entry
@@ -2636,6 +2678,8 @@ void System::EventReadRequestHandler(esim::Event *event,
 				frame->getId(),
 				target_module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->request_direction = frame->request_direction;
 		new_frame->blocking = frame->request_direction ==
 				Frame::RequestDirectionDownUp;
@@ -2773,6 +2817,8 @@ void System::EventReadRequestHandler(esim::Event *event,
 						frame->getId(),
 						target_module,
 						directory_entry_tag);
+				if(frame->gpu_access)
+							new_frame->gpu_access = true;
 				new_frame->target_module = owner_module;
 				new_frame->request_direction = Frame::RequestDirectionDownUp;
 				esim_engine->Call(event_read_request,
@@ -2794,6 +2840,8 @@ void System::EventReadRequestHandler(esim::Event *event,
 					frame->getId(),
 					target_module,
 					frame->tag);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->target_module = target_module->getLowModuleServingAddress(frame->tag);
 			new_frame->request_direction = Frame::RequestDirectionUpDown;
 			esim_engine->Call(event_read_request,
@@ -2845,6 +2893,7 @@ void System::EventReadRequestHandler(esim::Event *event,
 		target_cache->setBlock(frame->set,
 				frame->way,
 				frame->tag,
+				frame->gpu_access,
 				frame->shared ? Cache::BlockShared : Cache::BlockExclusive);
 
 		// Continue with 'read-request-updown-finish'
@@ -3039,6 +3088,8 @@ void System::EventReadRequestHandler(esim::Event *event,
 					frame->getId(),
 					target_module,
 					directory_entry_tag);
+			if(frame->gpu_access)
+						new_frame->gpu_access = true;
 			new_frame->target_module = owner;
 			new_frame->request_direction = Frame::RequestDirectionDownUp;
 			esim_engine->Call(event_read_request,
@@ -3081,7 +3132,7 @@ void System::EventReadRequestHandler(esim::Event *event,
 		{
 			// Set state to S
 			target_cache->setBlock(frame->set, frame->way,
-					frame->tag, Cache::BlockShared);
+					frame->tag, frame->gpu_access, Cache::BlockShared);
 
 			// State is changed to shared, set owner of 
 			// sub-blocks to 0.
@@ -3107,7 +3158,7 @@ void System::EventReadRequestHandler(esim::Event *event,
 
 			// Set state to S
 			target_cache->setBlock(frame->set, frame->way,
-					frame->tag, Cache::BlockShared);
+					frame->tag,frame->gpu_access, Cache::BlockShared);
 
 			// State is changed to shared, set owner of sub-blocks 
 			// to 0
@@ -3154,7 +3205,7 @@ void System::EventReadRequestHandler(esim::Event *event,
 
 			// Set block to S
 			target_cache->setBlock(frame->set, frame->way,
-					frame->tag, Cache::BlockShared);
+					frame->tag, frame->gpu_access,Cache::BlockShared);
 
 			// Done
 			break;
@@ -3378,6 +3429,8 @@ void System::EventInvalidateHandler(esim::Event *event,
 						frame->getId(),
 						module,
 						directory_entry_tag);
+				if(frame->gpu_access)
+							new_frame->gpu_access = true;
 				new_frame->target_module = sharer;
 				new_frame->request_direction = Frame::RequestDirectionDownUp;
 				esim_engine->Call(event_write_request,
@@ -3417,6 +3470,7 @@ void System::EventInvalidateHandler(esim::Event *event,
 				cache->setBlock(frame->set,
 						frame->way,
 						frame->tag,
+						frame->gpu_access,
 						Cache::BlockModified);
 				break;
 
@@ -3424,6 +3478,7 @@ void System::EventInvalidateHandler(esim::Event *event,
 				cache->setBlock(frame->set,
 						frame->way,
 						frame->tag,
+						frame->gpu_access,
 						Cache::BlockNonCoherent);
 				break;
 
@@ -3534,6 +3589,8 @@ void System::EventMessageHandler(esim::Event *event,
 					frame->getId(),
 					target_module,
 					frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->message_type = frame->message_type;
                 new_frame->blocking = false;
 		new_frame->retry = false;
@@ -3832,6 +3889,8 @@ void System::EventLocalLoadHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->blocking = true;
 		new_frame->read = true;
 		new_frame->retry = frame->retry;
@@ -3977,6 +4036,8 @@ void System::EventLocalStoreHandler(esim::Event *event,
 				frame->getId(),
 				module,
 				frame->getAddress());
+		if(frame->gpu_access)
+					new_frame->gpu_access = true;
 		new_frame->blocking = true;
 		new_frame->write = true;
 		new_frame->retry = frame->retry;

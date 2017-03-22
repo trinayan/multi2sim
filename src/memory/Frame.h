@@ -224,8 +224,13 @@ public:
 	// of a block
 	bool partial_invalidation = false;
 
+	//Flag indicating whether the frame contains a CPU access or a GPU access
+   //
+    bool gpu_access= false;
 
+    // No of gpu blocks evicting cpu blocks
 
+    long long gpu_evicting_cpu = 0;
 	//
 	// Functions
 	//

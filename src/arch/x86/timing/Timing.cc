@@ -306,6 +306,10 @@ bool Timing::Run()
 	- Cpu::getNumFastForwardInstructions())
 		esim_engine->Finish("X86MaxInstructions");
 
+	//Stop if x86 has committed 5 million instructions
+	if(cpu->getNumCommittedInstructions() >= 5000000)
+		esim_engine->Finish("X86MaxCycles");
+
 	// Stop if maximum number of cycles exceeded
 	if (Cpu::max_cycles && getCycle() >= Cpu::max_cycles)
 		esim_engine->Finish("X86MaxCycles");
@@ -352,7 +356,7 @@ void Timing::FastForwardOpenCL()
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 
-	printf("Entering opencl fast forward at %d \n", emulator->getNumInstructions());
+	printf("Entering opencl fast forward at %lld \n", emulator->getNumInstructions());
 
 	//Set the flush variable to 1 so that we dont fetch
 	cpu->setFlushing(1);
@@ -445,7 +449,7 @@ void Timing::FastForwardOpenCL()
 		    }
 		}
 }
-	printf("Ending opencl fast forward at %d\n", emulator->getNumInstructions());
+	printf("Ending opencl fast forward at %lld\n", emulator->getNumInstructions());
 
 }
 

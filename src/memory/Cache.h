@@ -87,6 +87,9 @@ public:
 		// Way identifier
 		unsigned way_id = 0;
 
+		// GPU or CPU block identifier
+        unsigned gpu_block = 0;
+
 		// Block state
 		BlockState state = BlockInvalid;
 
@@ -250,7 +253,7 @@ public:
 	///	New state for the block
 	void setBlock(unsigned set_id,
 			unsigned way_id,
-			unsigned tag,
+			unsigned tag,bool gpu_access,
 			BlockState state);
 
 	/// Return the tag and the state of a cache block.
@@ -280,6 +283,9 @@ public:
 	/// Return the way index of the block to be replaced in the given set,
 	/// as per the current block replacement policy.
 	unsigned ReplaceBlock(unsigned set_id);
+
+	///Return if the CPU or GPU is accessing the particular block
+	unsigned FindAccessingDevice(unsigned set_id);
 
 	/// Set the transient tag of a block.
 	void setTransientTag(unsigned set_id, unsigned way_id, unsigned tag)

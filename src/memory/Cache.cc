@@ -130,7 +130,7 @@ bool Cache::FindBlock(unsigned address,
 
 void Cache::setBlock(unsigned set_id,
 		unsigned way_id,
-		unsigned tag,
+		unsigned tag,bool gpu_access,
 		BlockState state)
 {
 	// Trace
@@ -146,11 +146,17 @@ void Cache::setBlock(unsigned set_id,
 	Set *set = getSet(set_id);
 	Block *block = getBlock(set_id, way_id);
 
+	if(gpu_access)
+			block->gpu_block = 1;
+		else
+			block->gpu_block = 2;  //2 means CPU. Cannot put 0
+
 	// If the block is being brought to the cache now for the first time,
 	// update the FIFO list.
 	if (replacement_policy == ReplacementFIFO
 			&& block->tag != tag)
 	{
+
 		set->lru_list.Erase(block->lru_node);
 		set->lru_list.PushFront(block->lru_node);
 	}
@@ -188,6 +194,7 @@ void Cache::AccessBlock(unsigned set_id, unsigned way_id)
 	// Move to the head of the LRU list
 	if (move_to_head)
 	{
+
 		set->lru_list.Erase(block->lru_node);
 		set->lru_list.PushFront(block->lru_node);
 	}
@@ -199,7 +206,7 @@ unsigned Cache::ReplaceBlock(unsigned set_id)
 	// Get the set
 	Set *set = getSet(set_id);
 
-	// For LRU and FIFO replacement policies, return the block at the end of
+    // For LRU and FIFO replacement policies, return the block at the end of
 	// the block list in the set.
 	if (replacement_policy == ReplacementLRU ||
 			replacement_policy == ReplacementFIFO)
@@ -208,18 +215,34 @@ unsigned Cache::ReplaceBlock(unsigned set_id)
 		Block *block = misc::cast<Block *>(set->lru_list.Back());
 		assert(block);
 
+		/*if(this->getName() == "mod-shared-l3")
+		{
+			if(block->gpu_block == 2)
+
+		}*/
+
+
 		// Move it to the head to avoid making it a candidate in the
 		// next call to getReplacementBlock().
+
 		set->lru_list.Erase(block->lru_node);
 		set->lru_list.PushFront(block->lru_node);
 
 		// Return way index of the selected block
 		return block->way_id;
+
 	}
 
 	// Random replacement policy
 	assert(replacement_policy == ReplacementRandom);
 	return random() % num_ways;
+}
+
+unsigned Cache::FindAccessingDevice(unsigned set_id)
+{
+	Set *set = getSet(set_id);
+	Block *block = misc::cast<Block *>(set->lru_list.Back());
+	return block->gpu_block;
 }
 
 
