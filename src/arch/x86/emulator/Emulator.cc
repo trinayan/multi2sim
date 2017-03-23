@@ -425,9 +425,14 @@ bool Emulator::Run()
 {
 	// Stop if there is no more contexts
 
+<<<<<<< Updated upstream
 	if((num_instructions % 100000000) == 0)
 		printf("Number of instructions %lld \n",num_instructions);
 
+=======
+	if ((num_instructions % 100000000) == 0 )
+		printf("Number of ins %lld \n",num_instructions);
+>>>>>>> Stashed changes
 	if (!contexts.size())
 		return false;
 
