@@ -36,12 +36,12 @@ Module::Module(const std::string &name,
 		int num_ports,
 		int block_size,
 		int data_latency)
-		:
-		name(name),
-		type(type),
-		block_size(block_size),
-		data_latency(data_latency),
-		num_ports(num_ports)
+:
+						name(name),
+						type(type),
+						block_size(block_size),
+						data_latency(data_latency),
+						num_ports(num_ports)
 {
 	// Create 'num_ports' in vector of ports
 	ports.resize(num_ports);
@@ -63,7 +63,7 @@ bool Module::ServesAddress(unsigned address) const
 	if (range_type == RangeInterleaved)
 		return (address / range.interleaved.div) %
 				range.interleaved.mod ==
-				range.interleaved.eq;
+						range.interleaved.eq;
 
 	// Invalid
 	throw misc::Panic("Invalid range type");
@@ -130,7 +130,7 @@ Module *Module::getOwner(int set_id, int way_id, int sub_block_id) const
 	// No owner
 	if (owner == Directory::NoOwner)
 		return nullptr;
-	
+
 	// Get node
 	net::Node *node = high_network->getNode(owner);
 	assert(node);
@@ -207,30 +207,30 @@ long long Module::Access(AccessType access_type,
 		}
 		break;
 
-	case TypeLocalMemory:
+		case TypeLocalMemory:
 
-		switch (access_type)
-		{
+			switch (access_type)
+			{
 
-		case AccessLoad:
+			case AccessLoad:
 
-			event = System::event_local_load;
+				event = System::event_local_load;
+				break;
+
+			case AccessStore:
+
+				event = System::event_local_store;
+				break;
+
+			default:
+
+				throw misc::Panic("Invalid access type");
+			}
 			break;
 
-		case AccessStore:
+			default:
 
-			event = System::event_local_store;
-			break;
-
-		default:
-
-			throw misc::Panic("Invalid access type");
-		}
-		break;
-
-	default:
-
-		throw misc::Panic("Invalid module type");
+				throw misc::Panic("Invalid module type");
 	}
 
 	// Schedule event
@@ -362,7 +362,7 @@ Frame *Module::getInFlightWrite(Frame *older_than_frame)
 		return write_accesses.size() ?
 				write_accesses.back() :
 				nullptr;
-	
+
 	// Search
 	auto it = older_than_frame->accesses_iterator;
 	while (it != accesses.begin())
@@ -432,7 +432,7 @@ void Module::Dump(std::ostream &os) const
 
 			// Sharers field size
 			unsigned entry_text_size = 0;
-			
+
 			// find modules that are sharers/owner of the 
 			// directory entries. 
 			for (int sub_block_id = 0; 
@@ -452,8 +452,8 @@ void Module::Dump(std::ostream &os) const
 						if (entry_text_size < high_module->
 								getName().length())
 							entry_text_size = high_module->
-									getName().
-									length();
+							getName().
+							length();
 						sharers++;
 					}
 				}
@@ -486,7 +486,7 @@ void Module::Dump(std::ostream &os) const
 			"\n";
 	os << "| Module " << name.c_str() <<
 			std::string((ways * sub_blocks + 2) * element_size - 10 -
-			name.length(), ' ') << "|" << "\n";
+					name.length(), ' ') << "|" << "\n";
 	os << std::string((ways * sub_blocks + 2)* element_size, '=') << 
 			"\n";
 
@@ -507,8 +507,8 @@ void Module::Dump(std::ostream &os) const
 				std::string(pad_size/2, ' ') <<
 				way_id.c_str() <<
 				std::string((sub_blocks * element_size) - 2 
-				- way_id.length() - pad_size/2, ' ') <<
-				"|";
+						- way_id.length() - pad_size/2, ' ') <<
+						"|";
 	}
 
 	// Separating the first row
@@ -534,8 +534,8 @@ void Module::Dump(std::ostream &os) const
 				std::string(pad_size/2, ' ') <<
 				"State" <<
 				std::string(element_size - 7 - 
-				pad_size/2, ' ') <<
-				"|";
+						pad_size/2, ' ') <<
+						"|";
 
 		// Printing the state of the block
 		for (unsigned way = 0; way < ways; way++)
@@ -549,13 +549,13 @@ void Module::Dump(std::ostream &os) const
 					std::string(pad_size/2, ' ') <<
 					Cache::BlockStateMap[block->getState()] <<
 					std::string(sub_blocks * element_size - 3 - 
-					pad_size/2, ' ') <<
-					"|";
+							pad_size/2, ' ') <<
+							"|";
 		}
 
 		// Internal separator
 		os << "\n" << "|" << std::string(element_size - 1, ' ')
-				<< std::string(element_size * 
+		<< std::string(element_size *
 				(ways * sub_blocks + 1),'-') << "\n";
 
 		// The next row is the tag but the first column is empty
@@ -567,8 +567,8 @@ void Module::Dump(std::ostream &os) const
 				std::string(pad_size/2, ' ') <<
 				"Tag" <<
 				std::string(element_size - 5 - 
-				pad_size/2, ' ') <<
-				"|";
+						pad_size/2, ' ') <<
+						"|";
 
 		// Printing the tag of the block
 		for (unsigned way = 0; way < ways; way++)
@@ -580,7 +580,7 @@ void Module::Dump(std::ostream &os) const
 			if (!block->getState())
 			{
 				os << "|" << std::string(sub_blocks * element_size - 2, ' ')
-						<< "|";
+				<< "|";
 			}
 			else
 			{
@@ -596,15 +596,15 @@ void Module::Dump(std::ostream &os) const
 						std::string(pad_size/2, ' ') <<
 						tag.c_str() <<
 						std::string(sub_blocks * 
-						element_size - 2 - 
-						tag.length() - pad_size/2, 
-						' ') <<
-						"|";
+								element_size - 2 -
+								tag.length() - pad_size/2,
+								' ') <<
+								"|";
 			}
 		}
 		// Internal separator
 		os << "\n" << "|" << std::string(element_size - 1, ' ')
-				<< std::string(element_size * 
+		<< std::string(element_size *
 				(sub_blocks * ways + 1),'-') << "\n";
 
 		// Start printing sharers of the sub-blocks one sharer
@@ -630,14 +630,14 @@ void Module::Dump(std::ostream &os) const
 				os << "|" <<
 						std::string(pad_size/2, ' ') <<
 						"Sharers" <<
-					std::string(element_size - 9 - 
-					pad_size/2, ' ') <<
-					"|";
+						std::string(element_size - 9 -
+								pad_size/2, ' ') <<
+								"|";
 			}
 			else
 			{
 				os << "|" << std::string(element_size - 2, ' ')
-						<< "|";
+				<< "|";
 			}
 
 			// For each entry
@@ -651,7 +651,7 @@ void Module::Dump(std::ostream &os) const
 					if (!getNumSharers(set, way, sub_block))
 					{
 						os << "|" << std::string(
-						element_size - 2, ' ') << "|";
+								element_size - 2, ' ') << "|";
 						continue;
 					}
 					// Counting the modules that are 
@@ -661,9 +661,9 @@ void Module::Dump(std::ostream &os) const
 					{
 						// Get the number of printed sharer
 						int printed = printed_counter[
-								way * directory->
-								getNumSubBlocks() +
-								sub_block];
+													  way * directory->
+													  getNumSubBlocks() +
+													  sub_block];
 
 						// Find a sharer module
 						int index = getSharerIndex(high_module);
@@ -687,10 +687,10 @@ void Module::Dump(std::ostream &os) const
 								// printed
 								// counter
 								printed_counter[
-								way * directory->
-								getNumSubBlocks() +
-								sub_block]++;
-								
+												way * directory->
+												getNumSubBlocks() +
+												sub_block]++;
+
 								// Print
 								int length = 
 										high_module->
@@ -700,11 +700,11 @@ void Module::Dump(std::ostream &os) const
 										2 -
 										length;
 								os << "|" <<
-								std::string(pad_size/2, ' ') <<
-								high_module->getName() <<
-								std::string(element_size - 2 - 
-								length - pad_size/2, ' ') <<
-								"|";
+										std::string(pad_size/2, ' ') <<
+										high_module->getName() <<
+										std::string(element_size - 2 -
+												length - pad_size/2, ' ') <<
+												"|";
 								break;
 							}
 						}
@@ -716,7 +716,7 @@ void Module::Dump(std::ostream &os) const
 		}
 		// Internal separator
 		os << "|" << std::string(element_size - 1, ' ')
-				<< std::string(element_size * 
+		<< std::string(element_size *
 				(sub_blocks * ways + 1),'-') << "\n";
 
 		// The next row is the owner but the first column is empty
@@ -728,8 +728,8 @@ void Module::Dump(std::ostream &os) const
 				std::string(pad_size/2, ' ') <<
 				"Owner" <<
 				std::string(element_size - 7 - 
-				pad_size/2, ' ') <<
-				"|";
+						pad_size/2, ' ') <<
+						"|";
 
 		// For each entry
 		for (unsigned way = 0; way < ways; way++)
@@ -743,7 +743,7 @@ void Module::Dump(std::ostream &os) const
 				if (!owner)
 				{
 					os << "|" << std::string(
-					element_size - 2, ' ') << "|";
+							element_size - 2, ' ') << "|";
 				}
 				else
 				{
@@ -752,19 +752,19 @@ void Module::Dump(std::ostream &os) const
 					pad_size = element_size - 2 - length;
 					os << "|" <<
 							std::string(pad_size/2,
-							' ') <<
-							owner->getName() <<
-							std::string(element_size - 
-							2 - length - 
-							pad_size/2, ' ') <<
-							"|";
+									' ') <<
+									owner->getName() <<
+									std::string(element_size -
+											2 - length -
+											pad_size/2, ' ') <<
+											"|";
 				}
 			}
 		}
 		// Set separator
 		os << "\n" << "|" << std::string((2 + ways * sub_blocks) * 
 				element_size - 2, '=') << "|"
-				<< "\n";
+						<< "\n";
 	}
 }
 
@@ -782,7 +782,7 @@ void Module::DumpReport(std::ostream &os) const
 		os << misc::fmt("Ways = %d\n", cache->getNumWays());
 		os << "ReplacementPolicy = " <<
 				cache->ReplacementPolicyMap.MapValue(
-				cache->getReplacementPolicy()) << "\n";
+						cache->getReplacementPolicy()) << "\n";
 		os << "WritePolicy = " << cache->WritePolicyMap.MapValue(
 				cache->getWritePolicy()) << "\n";
 	}
@@ -795,74 +795,31 @@ void Module::DumpReport(std::ostream &os) const
 
 	// Statistics - Accesses
 	os << misc::fmt("Accesses = %lld\n", num_accesses);
-	os << misc::fmt("CoalescedAccesses = %lld\n", num_coalesced_reads +
-			num_coalesced_writes + num_coalesced_nc_writes);
-	os << misc::fmt("RetriedAccesses = %lld\n", num_retry_accesses);
-	os << misc::fmt("Evictions = %lld\n", num_evictions);
-	os << misc::fmt("GPU L3 cache access = %lld\n", num_gpu_l3_access);
-	os <<misc::fmt("No of CPU blocks evicted by GPU = %lld \n", gpu_evictions);
+	os << misc::fmt("CPU Accesses = %lld\n", num_cpu_access);
+	os << misc::fmt("GPU Accesses = %lld\n", num_gpu_access);
+
+	std::string str1 ("mod-shared-l3");
+	std::string str2 (this->getName());
+	if(str1.compare(str2) == 0)
+		os <<misc::fmt("No of CPU blocks evicted by GPU = %lld \n", gpu_evictions);
+
 	// Statistics - Hits and misses
-	long long int num_hits = num_read_hits + num_write_hits 
-			+ num_nc_write_hits;
-	os << misc::fmt("Hits = %lld\n", num_hits);
-	os << misc::fmt("Misses = %lld\n", num_accesses - num_hits);
-	os << misc::fmt("HitRatio = %.4g\n", num_accesses ? 
-			(double) num_hits / num_accesses : 0.0);
-	os << "\n";
+	long long int num_cpu_hits = num_read_hits_cpu + num_write_hits_cpu
+			+ num_nc_write_hits_cpu;
+	long long num_gpu_hits = num_read_hits_gpu + num_write_hits_gpu
+							+ num_nc_write_hits_gpu;
 
-	// Statistics breakdown - Reads
-	os << misc::fmt("Reads = %lld\n", num_reads);
-	os << misc::fmt("CoalescedReads = %lld\n", num_coalesced_reads);
-	os << misc::fmt("ReadHits = %lld\n", num_read_hits);
-	os << misc::fmt("ReadMisses = %lld\n", num_reads - num_read_hits);
-	os << misc::fmt("ReadRetries = %lld\n", num_retry_reads);
-	os << misc::fmt("ReadRetryHits = %lld\n", num_retry_read_hits);
-	os << misc::fmt("ReadRetryMisses = %lld\n", num_retry_read_misses);
-	os << misc::fmt("BlockingReads = %lld\n", num_blocking_reads);
-	os << misc::fmt("NonBlockingReads = %lld\n", num_non_blocking_reads);
-	os << "\n";
+	os << misc::fmt("CPU Hits = %lld\n", num_cpu_hits);
+	os << misc::fmt("GPU Hits = %lld\n", num_gpu_hits);
+	os << misc::fmt("CPU Misses = %lld\n", num_cpu_access-num_cpu_hits);
+	os << misc::fmt("GPU Misses = %lld\n", num_gpu_access-num_gpu_hits);
 
-	// Statistics breakdown - Writes
-	os << misc::fmt("Writes = %lld\n", num_writes);
-	os << misc::fmt("CoalescedWrites = %lld\n", num_coalesced_writes);
-	os << misc::fmt("WriteHits = %lld\n", num_write_hits);
-	os << misc::fmt("WriteMisses = %lld\n", num_writes - num_write_hits);
-	os << misc::fmt("WriteRetries = %lld\n", num_retry_writes);
-	os << misc::fmt("WriteRetryHits = %lld\n", num_retry_write_hits);
-	os << misc::fmt("WriteRetryMisses = %lld\n", num_retry_write_misses);
-	os << misc::fmt("BlockingWrites = %lld\n", num_blocking_writes);
-	os << misc::fmt("NonBlockingWrites = %lld\n", num_non_blocking_writes);
 	os << "\n";
-
-	// Statistics breakdown - Non-coherent Writes
-	os << misc::fmt("NCWrites = %lld\n", num_nc_writes);
-	os << misc::fmt("CoalescedNCWrites = %lld\n", num_coalesced_nc_writes);
-	os << misc::fmt("NCWriteHits = %lld\n", num_nc_write_hits);
-	os << misc::fmt("NCWriteMisses = %lld\n", 
-			num_nc_writes - num_nc_write_hits);
-	os << misc::fmt("NCWriteRetries = %lld\n", num_retry_nc_writes);
-	os << misc::fmt("NCWriteRetryHits = %lld\n", num_retry_nc_write_hits);
-	os << misc::fmt("NCWriteRetryMisses = %lld\n", 
-			num_retry_nc_write_misses);
-	os << misc::fmt("BlockingNCWrites = %lld\n", num_blocking_nc_writes);
-	os << misc::fmt("NonBlockingNCWrites = %lld\n", 
-			num_non_blocking_nc_writes);
-	os << "\n";
-
-	// Statistics - Conflicts
-	os << misc::fmt("DirectoryEntryConflicts = %lld\n", 
-			num_directory_entry_conflicts);
-	os << misc::fmt("RetryDirectoryEntryConflicts = %lld\n",
-			num_retry_directory_entry_conflicts);
-	if (type == TypeCache)
-		os << misc::fmt("ConflictInvalidation = %lld\n",
-				num_conflict_invalidations);
-	
 	// Separating line between modules
 	os << "\n\n";
 }
 
- 
+
 void Module::DumpInFlightAddresses(std::ostream &os)
 {
 	esim::Engine *engine = esim::Engine::getInstance();
@@ -870,7 +827,7 @@ void Module::DumpInFlightAddresses(std::ostream &os)
 			name.c_str(), engine->getCycle());
 	for (auto &pair : in_flight_block_addresses)
 	{
-		
+
 		unsigned block_address = pair.first;
 		Frame *frame = pair.second;
 		os << misc::fmt("\tkey (block_address) = 0x%x: "
@@ -906,7 +863,7 @@ Frame *Module::canCoalesce(AccessType access_type,
 	// access list (i.e., there is nothing older).
 	if (older_than_frame->accesses_iterator == accesses.begin())
 		return nullptr;
-	
+
 	// Get iterator to youngest access older than 'older_than_frame', or an
 	// iterator to the overall youngest access if 'older_than_frame' is
 	// null.
@@ -940,7 +897,7 @@ Frame *Module::canCoalesce(AccessType access_type,
 						frame->master_frame :
 						frame;
 			}
-			
+
 			// Done when head reached
 			if (it == accesses.begin())
 				break;
@@ -957,7 +914,7 @@ Frame *Module::canCoalesce(AccessType access_type,
 		Frame *frame = *tail;
 		if (frame->access_type != AccessStore)
 			return nullptr;
-		
+
 		// Only if it is an access to the same block
 		if (frame->getAddress() >> log_block_size !=
 				address >> log_block_size)
@@ -1113,7 +1070,7 @@ void Module::UnlockPort(Port *port, Frame *frame)
 
 	// Wake up access
 	port_queue.WakeupOne();
-	
+
 	// Debug
 	System::debug << misc::fmt("    "
 			"A-%lld locks port on %s\n",
@@ -1135,12 +1092,12 @@ bool Module::FindBlock(unsigned address,
 	{
 		int num_modules = range.interleaved.mod;
 		set = ((tag >> cache->getLogBlockSize()) / num_modules)
-				% cache->getNumSets();
+								% cache->getNumSets();
 	}
 	else if (range_type == RangeBounds)
 	{
 		set = (tag >> cache->getLogBlockSize())
-				% cache->getNumSets();
+								% cache->getNumSets();
 	}
 	else 
 	{
@@ -1208,7 +1165,7 @@ void Module::FlushCache()
 {
 	// Get pointer to event frame
 	Frame *frame = misc::cast<Frame *>(frame);
-	
+
 	// Set up variables
 	unsigned tag;
 	Cache::BlockState state;
@@ -1245,7 +1202,7 @@ void Module::FlushCache()
 
 			// Schedule event
 			esim_engine->Call(event,
-				new_frame);
+					new_frame);
 		}
 	}
 }
@@ -1259,8 +1216,10 @@ void Module::UpdateStats(Frame *frame)
 	std::string str1 ("mod-shared-l3");
 	std::string str2 (this->getName());
 
-	if(str1.compare(str2) == 0 && frame->gpu_access)
-		num_gpu_l3_access++;
+	if(frame->gpu_access)
+		num_gpu_access++;
+	else
+		num_cpu_access++;
 
 	if(frame->gpu_evicting_cpu == 1)
 		gpu_evictions++;
@@ -1269,8 +1228,8 @@ void Module::UpdateStats(Frame *frame)
 	{
 		if(frame->read && !frame->gpu_access)
 		{
-		  if(!frame->hit)
-			  num_cpu_misses++;
+			if(!frame->hit)
+				num_cpu_misses++;
 		}
 
 	}
@@ -1289,12 +1248,19 @@ void Module::UpdateStats(Frame *frame)
 				num_blocking_reads++;
 			else
 				num_non_blocking_reads++;
-			if (frame->hit)
+			if (frame->hit && frame->gpu_access)
 			{
-				num_read_hits++;
+				num_read_hits_gpu++;
 				if (frame->retry)
 					num_retry_read_hits++;
 			}
+			else if (frame->hit && !frame->gpu_access)
+			{
+				num_read_hits_cpu++;
+				if (frame->retry)
+					num_retry_read_hits++;
+			}
+
 			else
 			{
 				num_read_misses++;
@@ -1312,9 +1278,15 @@ void Module::UpdateStats(Frame *frame)
 				num_blocking_nc_writes++;
 			else
 				num_non_blocking_nc_writes++;
-			if (frame->hit)
+			if (frame->hit && frame->gpu_access)
 			{
-				num_nc_write_hits++;
+				num_nc_write_hits_gpu++;
+				if (frame->retry)
+					num_retry_nc_write_hits++;
+			}
+			else if (frame->hit && !frame->gpu_access)
+			{
+				num_nc_write_hits_cpu++;
 				if (frame->retry)
 					num_retry_nc_write_hits++;
 			}
@@ -1334,9 +1306,15 @@ void Module::UpdateStats(Frame *frame)
 				num_blocking_writes++;
 			else
 				num_non_blocking_writes++;
-			if (frame->hit)
+			if (frame->hit && frame->gpu_access)
 			{
-				num_write_hits++;
+				num_write_hits_gpu++;
+				if (frame->retry)
+					num_retry_write_hits++;
+			}
+			else if (frame->hit && !frame->gpu_access)
+			{
+				num_write_hits_cpu++;
 				if (frame->retry)
 					num_retry_write_hits++;
 			}

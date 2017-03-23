@@ -247,6 +247,7 @@ bool Timing::help = false;
 int Timing::frequency = 1000;
 
 bool Timing::opencl_fast_forward = false;
+long long Timing::fast_forward_instructions = 0;
 
 Timing::Timing() : comm::Timing("x86")
 {
@@ -288,9 +289,9 @@ bool Timing::Run()
 		return false;
 
 	// Fast-forward simulation
-	if (Cpu::getNumFastForwardInstructions()
+	if (fast_forward_instructions
 	&& emulator->getNumInstructions()
-	< Cpu::getNumFastForwardInstructions())
+	< fast_forward_instructions)
 		FastForward();
 
 	//Optionally fast-forward if opencl is not being executed
@@ -303,11 +304,11 @@ bool Timing::Run()
 	if (Emulator::getMaxInstructions()
 	&& cpu->getNumCommittedInstructions()
 	>= Emulator::getMaxInstructions()
-	- Cpu::getNumFastForwardInstructions())
+	- fast_forward_instructions)
 		esim_engine->Finish("X86MaxInstructions");
 
 	//Stop if x86 has committed 5 million instructions
-	if(cpu->getNumCommittedInstructions() >= 5000000)
+	if(cpu->getNumCommittedInstructions() >= 7000000)
 		esim_engine->Finish("X86MaxCycles");
 
 	// Stop if maximum number of cycles exceeded
@@ -340,7 +341,7 @@ void Timing::FastForward()
 	Emulator *emulator = Emulator::getInstance();
 	esim::Engine *esim_engine = esim::Engine::getInstance();
 	while (emulator->getNumInstructions()
-			< Cpu::getNumFastForwardInstructions()
+			< fast_forward_instructions
 	&& !esim_engine->hasFinished())
 		emulator->Run();
 
@@ -734,6 +735,9 @@ void Timing::RegisterOptions()
 			" Fast-forward (emulate) x86 instructions whenever an OpenCL kernel is not "
 			" being executed.  This option is only valid for detailed x86 simulation. "	);
 
+	//Option --fast-forward
+    command_line->RegisterInt64("--x86-fast-forward", Timing::fast_forward_instructions,
+    		"Number of instructions to fast forward using functional simulation");
 }
 
 
@@ -827,7 +831,7 @@ void Timing::DumpSummary(std::ostream &os) const
 	os << misc::fmt("CyclesPerSecond = %.0f\n", cycles_per_second);
 
 	// Fast-forward instructions
-	os << misc::fmt("FastForwardInstructions = %lld\n", Cpu::getNumFastForwardInstructions());
+	os << misc::fmt("FastForwardInstructions = %lld\n", fast_forward_instructions);
 
 	// Number of committed instructions
 	os << misc::fmt("CommittedInstructions = %lld\n", cpu->getNumCommittedInstructions());
@@ -837,7 +841,7 @@ void Timing::DumpSummary(std::ostream &os) const
 			(double) cpu->getNumCommittedInstructions()
 			/ cpu->getCycle() : 0.0;
 	os << misc::fmt("CommittedInstructionsPerCycle = %.4g\n", instructions_per_cycle);
-
+    printf("IPC = %.4g\n",instructions_per_cycle);
 	// Number of committed micro-instruction
 	os << misc::fmt("CommittedMicroInstructions = %lld\n", cpu->getNumCommittedUinsts());
 
@@ -1200,7 +1204,7 @@ void Timing::DumpConfiguration(std::ofstream &os) const
 	os << misc::fmt("Frequency = %d\n", frequency);
 	os << misc::fmt("Cores = %d\n", cpu->getNumCores());
 	os << misc::fmt("Threads = %d\n", cpu->getNumThreads());
-	os << misc::fmt("FastForward = %lld\n", cpu->getNumFastForwardInstructions());
+	os << misc::fmt("FastForward = %lld\n", fast_forward_instructions);
 	os << misc::fmt("ContextQuantum = %d\n", cpu->getContextQuantum());
 	os << misc::fmt("ThreadQuantum = %d\n", cpu->getThreadQuantum());
 	os << misc::fmt("ThreadSwitchPenalty = %d\n", cpu->getThreadSwitchPenalty());

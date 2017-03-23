@@ -272,15 +272,18 @@ private:
 public:
 	// Statistics for up-down accesses
 	long long num_reads = 0;
-	long long num_read_hits = 0;
+	long long num_read_hits_cpu = 0;
+	long long num_read_hits_gpu = 0;
 	long long num_read_misses = 0;
 	long long num_coalesced_reads = 0;
 	long long num_writes = 0;
-	long long num_write_hits = 0;
+	long long num_write_hits_cpu = 0;
+	long long num_write_hits_gpu = 0;
 	long long num_write_misses = 0;
 	long long num_coalesced_writes = 0;
 	long long num_nc_writes = 0;
-	long long num_nc_write_hits = 0;
+	long long num_nc_write_hits_cpu = 0;
+	long long num_nc_write_hits_gpu = 0;
 	long long num_nc_write_misses = 0;
 	long long num_coalesced_nc_writes = 0;
 	long long num_retry_reads = 0;
@@ -292,7 +295,8 @@ public:
 	long long num_retry_nc_writes = 0;
 	long long num_retry_nc_write_hits = 0;
 	long long num_retry_nc_write_misses = 0;
-    long long num_gpu_l3_access = 0;
+    long long num_gpu_access = 0;
+    long long num_cpu_access = 0;
     long long num_cpu_misses = 0;
     long long num_gpu_misses = 0;
 	// Statistics for down-up accesses

@@ -71,8 +71,8 @@ class Timing : public comm::Timing
 	// Frequency of memory system in MHz
 	static int frequency;
 	
-	
-
+	//Number of fast forward instructions
+    static long long  fast_forward_instructions;
 	//
 	// Class members
 	//
