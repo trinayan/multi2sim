@@ -308,8 +308,8 @@ bool Timing::Run()
 		esim_engine->Finish("X86MaxInstructions");
 
 	//Stop if x86 has committed 5 million instructions
-	if(cpu->getNumCommittedInstructions() >= 7000000)
-		esim_engine->Finish("X86MaxCycles");
+	//if(cpu->getNumCommittedInstructions() >= 7000000)
+		//esim_engine->Finish("X86MaxCycles");
 
 	// Stop if maximum number of cycles exceeded
 	if (Cpu::max_cycles && getCycle() >= Cpu::max_cycles)
